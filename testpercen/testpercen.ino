@@ -13,7 +13,7 @@ const int RESET_BUTTON = 25;
 
 // --- Non-blocking delay timer ---
 unsigned long lastSend = 0;
-const unsigned long SEND_INTERVAL = 20000;
+const unsigned long SEND_INTERVAL = 2000;
 
 float readTemperature(int tempValue) {
     const float R_FIXED = 10000.0;
