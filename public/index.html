@@ -1,514 +1,577 @@
 <!DOCTYPE html>
-<html lang="vi" data-theme="light">
+<html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SPORO — Dashboard giám sát cây giống</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
-  <style>
-    :root {
-      --green:#16a34a; --green-t:#dcfce7; --blue:#4f46e5; --blue-t:#e0e7ff;
-      --sky:#0ea5e9; --sky-t:#e0f2fe; --orange:#f59e0b; --orange-t:#fef3c7;
-      --red:#ef4444; --red-t:#fee2e2; --purple:#a855f7; --purple-t:#f3e8ff;
-      --pink:#ec4899; --pink-t:#fce7f3;
-      --s1:8px; --s2:16px; --s3:24px; --s4:32px; --r:16px; --r-sm:12px; --sidebar:248px;
-      --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,"Helvetica Neue",sans-serif;
-    }
-    [data-theme="light"] {
-      --bg:#f4f5fb; --surface:#ffffff; --surface2:#f8fafc; --text:#1f2430; --muted:#8a93a6;
-      --hair:#eef0f6; --grid:#eef0f6; --shadow:0 1px 3px rgba(20,30,60,.04),0 8px 24px rgba(20,30,60,.05);
-      --side:#ffffff; --side-active:#f0f2fe;
-    }
-    [data-theme="dark"] {
-      --green:#22c55e; --green-t:rgba(34,197,94,.16); --blue:#818cf8; --blue-t:rgba(129,140,248,.16);
-      --sky:#38bdf8; --sky-t:rgba(56,189,248,.16); --orange:#fbbf24; --orange-t:rgba(251,191,36,.16);
-      --red:#f87171; --red-t:rgba(248,113,113,.16); --purple:#c084fc; --purple-t:rgba(192,132,252,.16);
-      --pink:#f472b6; --pink-t:rgba(244,114,182,.16);
-      --bg:#0b0f1a; --surface:#141926; --surface2:#1b2230; --text:#e8ecf4; --muted:#8a94a8;
-      --hair:#232b3a; --grid:#232b3a; --shadow:0 8px 30px rgba(0,0,0,.35); --side:#111725; --side-active:#1c2333;
-    }
-    * { box-sizing:border-box; margin:0; padding:0; -webkit-font-smoothing:antialiased; }
-    body { font-family:var(--font); background:var(--bg); color:var(--text); font-size:14px; line-height:1.5; transition:background .35s,color .35s; }
-    .app { display:grid; grid-template-columns:var(--sidebar) 1fr; min-height:100vh; }
-    .sidebar { background:var(--side); border-right:1px solid var(--hair); padding:var(--s3) var(--s2); position:sticky; top:0; height:100vh; overflow-y:auto; transition:background .35s,transform .3s; }
-    .side-brand { display:flex; align-items:center; gap:10px; padding:0 8px var(--s3); }
-    .side-brand .logo { width:38px; height:38px; border-radius:11px; background:linear-gradient(135deg,var(--green),#15803d); display:grid; place-items:center; font-size:20px; box-shadow:0 4px 14px rgba(22,163,74,.35); }
-    .side-brand b { font-size:19px; font-weight:800; letter-spacing:.5px; }
-    .side-brand small { display:block; font-size:10px; color:var(--muted); font-weight:500; letter-spacing:0; }
-    .nav-label { font-size:11px; text-transform:uppercase; letter-spacing:.6px; color:var(--muted); font-weight:600; padding:var(--s2) 10px 6px; }
-    .nav-item { display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:10px; color:var(--muted); cursor:pointer; font-weight:500; font-size:14px; transition:.18s; text-decoration:none; }
-    .nav-item .ic { width:20px; text-align:center; font-size:15px; }
-    .nav-item:hover { background:var(--surface2); color:var(--text); }
-    .nav-item.active { background:var(--side-active); color:var(--blue); font-weight:600; }
-    .main { min-width:0; }
-    .topbar { position:sticky; top:0; z-index:20; display:flex; align-items:center; justify-content:space-between; gap:var(--s2); padding:var(--s2) var(--s3); background:color-mix(in srgb,var(--bg) 80%,transparent); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); border-bottom:1px solid var(--hair); flex-wrap:wrap; }
-    .topbar .title h2 { font-size:20px; font-weight:700; }
-    .topbar .title .crumb { font-size:12px; color:var(--muted); }
-    .top-right { display:flex; align-items:center; gap:10px; }
-    .hamburger { display:none; }
-    .search { display:flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--hair); border-radius:999px; padding:8px 14px; color:var(--muted); font-size:13px; min-width:180px; }
-    .search input { border:none; background:transparent; color:var(--text); outline:none; font-family:var(--font); width:100%; font-size:13px; }
-    .status-badge { display:inline-flex; align-items:center; gap:7px; height:36px; padding:0 14px; border-radius:999px; font-size:13px; font-weight:600; background:var(--surface); border:1px solid var(--hair); }
-    .status-badge .dot { width:8px; height:8px; border-radius:50%; background:var(--muted); }
-    .status-badge.on { color:var(--sky); } .status-badge.on .dot { background:var(--sky); box-shadow:0 0 10px var(--sky); animation:pulse 1.4s infinite; }
-    .status-badge.idle { color:var(--green); } .status-badge.idle .dot { background:var(--green); }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
-    .icon-btn { min-width:40px; height:40px; padding:0 10px; border-radius:20px; cursor:pointer; border:1px solid var(--hair); background:var(--surface); color:var(--text); font-size:15px; font-weight:600; display:grid; place-items:center; transition:.18s; font-family:var(--font); }
-    .icon-btn:hover { background:var(--surface2); } .icon-btn:active { transform:scale(.92); }
-    .avatar { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,var(--purple),var(--blue)); display:grid; place-items:center; color:#fff; font-weight:700; font-size:14px; }
-    .content { padding:var(--s3); }
-    .cards { display:grid; grid-template-columns:repeat(6,1fr); gap:var(--s2); margin-bottom:var(--s2); }
-    .stat { background:var(--surface); border:1px solid var(--hair); border-radius:var(--r); padding:18px; box-shadow:var(--shadow); transition:transform .22s, background .35s; }
-    .stat:hover { transform:translateY(-3px); }
-    .stat .top { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
-    .stat .tile { width:42px; height:42px; border-radius:12px; display:grid; place-items:center; font-size:20px; }
-    .stat .label { font-size:12.5px; color:var(--muted); font-weight:500; }
-    .stat .value { font-size:26px; font-weight:800; line-height:1; letter-spacing:-.02em; font-variant-numeric:tabular-nums; margin-top:2px; }
-    .stat .value .u { font-size:14px; color:var(--muted); font-weight:600; }
-    .trend { display:inline-flex; align-items:center; gap:3px; font-size:11px; font-weight:700; padding:3px 8px; border-radius:999px; margin-top:10px; }
-    .trend.up { background:var(--green-t); color:var(--green); } .trend.down { background:var(--red-t); color:var(--red); } .trend.flat { background:var(--surface2); color:var(--muted); }
-    .grid-2 { display:grid; grid-template-columns:1.4fr 1fr; gap:var(--s2); margin-bottom:var(--s2); }
-    .grid-2b { display:grid; grid-template-columns:1fr 1fr; gap:var(--s2); margin-bottom:var(--s2); }
-    .bottom { display:grid; grid-template-columns:1.3fr 1fr; gap:var(--s2); }
-    .panel { background:var(--surface); border:1px solid var(--hair); border-radius:var(--r); padding:var(--s3); box-shadow:var(--shadow); transition:background .35s; }
-    .panel .ph { display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--s2); }
-    .panel h3 { font-size:16px; font-weight:700; } .panel .desc { font-size:12px; color:var(--muted); margin-top:2px; }
-    .chip { font-size:11px; color:var(--muted); background:var(--surface2); border:1px solid var(--hair); padding:5px 10px; border-radius:8px; }
-    .donut-center { position:absolute; inset:0; display:grid; place-items:center; pointer-events:none; text-align:center; }
-    .donut-center .big { font-size:26px; font-weight:800; } .donut-center .sm { font-size:11px; color:var(--muted); }
-    .legend { display:flex; flex-direction:column; gap:8px; margin-top:var(--s2); }
-    .legend .li { display:flex; align-items:center; gap:8px; font-size:13px; }
-    .legend .li .sw { width:10px; height:10px; border-radius:3px; } .legend .li .val { margin-left:auto; font-weight:700; color:var(--muted); }
-    table { width:100%; border-collapse:collapse; font-size:13px; }
-    thead th { text-align:left; color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.4px; font-weight:600; padding:8px 6px; border-bottom:1px solid var(--hair); }
-    tbody td { padding:11px 6px; border-bottom:1px solid var(--hair); } tbody tr:last-child td { border-bottom:none; }
-    .pill { padding:4px 10px; border-radius:999px; font-size:11px; font-weight:700; }
-    .pill.water { background:var(--sky-t); color:var(--sky); } .pill.stop { background:var(--green-t); color:var(--green); }
-    .pill.alert { background:var(--red-t); color:var(--red); } .pill.config { background:var(--surface2); color:var(--muted); }
-    .empty { color:var(--muted); text-align:center; padding:var(--s3); }
-    .valve-box { display:flex; gap:var(--s2); margin-bottom:var(--s2); }
-    .valve { flex:1; text-align:center; padding:14px; border-radius:var(--r-sm); border:1px solid var(--hair); background:var(--surface2); transition:.2s; }
-    .valve .st { font-size:12px; color:var(--muted); } .valve .sv { font-size:16px; font-weight:800; margin-top:3px; }
-    .valve.active-on { border-color:transparent; background:var(--sky-t); } .valve.active-on .sv { color:var(--sky); }
-    .valve.active-off { border-color:transparent; background:var(--green-t); } .valve.active-off .sv { color:var(--green); }
-    .logic-row { display:flex; align-items:center; gap:12px; padding:12px; border-radius:var(--r-sm); margin-bottom:9px; background:var(--surface2); }
-    .logic-row .k { width:4px; height:38px; border-radius:4px; } .logic-row .t1 { font-size:12px; color:var(--muted); } .logic-row .t2 { font-size:15px; font-weight:700; margin-top:2px; }
-    .overlay { position:fixed; inset:0; background:rgba(0,0,0,.4); backdrop-filter:blur(2px); opacity:0; pointer-events:none; transition:.3s; z-index:60; }
-    .overlay.open { opacity:1; pointer-events:auto; }
-    .drawer { position:fixed; top:0; right:-400px; width:370px; max-width:92vw; height:100%; background:var(--surface); border-left:1px solid var(--hair); box-shadow:-20px 0 60px rgba(0,0,0,.25); z-index:70; transition:right .35s cubic-bezier(.32,.72,0,1); padding:var(--s4) var(--s3); overflow-y:auto; }
-    .drawer.open { right:0; }
-    .drawer h2 { font-size:22px; font-weight:800; margin-bottom:4px; } .drawer .hint { font-size:13px; color:var(--muted); margin-bottom:var(--s3); }
-    .field { margin-bottom:var(--s3); }
-    .field label { display:flex; justify-content:space-between; font-size:14px; margin-bottom:9px; color:var(--muted); } .field label b { color:var(--text); font-weight:700; }
-    input[type=range] { width:100%; height:28px; accent-color:var(--green); cursor:pointer; }
-    .seg { display:flex; gap:4px; margin-bottom:var(--s3); padding:4px; background:var(--surface2); border-radius:10px; }
-    .seg button { flex:1; min-height:34px; border-radius:7px; cursor:pointer; font-weight:600; font-size:13px; border:none; background:transparent; color:var(--text); font-family:var(--font); transition:.2s; }
-    .seg button.active { background:var(--surface); box-shadow:0 1px 3px rgba(0,0,0,.12); }
-    .btn-save { width:100%; min-height:48px; border-radius:13px; border:none; cursor:pointer; background:var(--green); color:#fff; font-weight:700; font-size:16px; margin-top:4px; font-family:var(--font); transition:.15s; }
-    .btn-save:hover { filter:brightness(1.06); } .btn-save:active { transform:scale(.98); }
-    .divider { height:1px; background:var(--hair); margin:var(--s3) 0; }
-    .toggle-row { display:flex; align-items:center; justify-content:space-between; min-height:44px; font-size:15px; }
-    .switch { position:relative; width:50px; height:30px; flex-shrink:0; } .switch input { display:none; }
-    .switch .slider { position:absolute; inset:0; border-radius:999px; background:var(--surface2); border:1px solid var(--hair); cursor:pointer; transition:.3s; }
-    .switch .slider::before { content:""; position:absolute; width:26px; height:26px; border-radius:50%; background:#fff; top:1px; left:1px; transition:.3s cubic-bezier(.32,.72,0,1); box-shadow:0 2px 6px rgba(0,0,0,.2); }
-    .switch input:checked + .slider { background:var(--green); border-color:transparent; } .switch input:checked + .slider::before { transform:translateX(20px); }
-    @media (max-width:1200px){ .cards{ grid-template-columns:repeat(3,1fr);} }
-    @media (max-width:1000px){ .grid-2,.grid-2b,.bottom{ grid-template-columns:1fr; } }
-    @media (max-width:820px){ .app{ grid-template-columns:1fr; } .sidebar{ position:fixed; z-index:80; width:var(--sidebar); transform:translateX(-100%); } .sidebar.open{ transform:translateX(0); } .hamburger{ display:grid; } .search{ display:none; } }
-    @media (max-width:560px){ .cards{ grid-template-columns:repeat(2,1fr); } }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SPORO — AgriVision</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+<style>
+:root{
+  --green:#4e874e; --green-d:#3c6b3c; --amber:#dd9a3b; --terra:#cf6b57; --blue:#4f93b8;
+  --page:#e8eae5; --card:#ffffff; --inner:#f3f5f1;
+  --text:#1e2a22; --muted:#7d8a80; --faint:#a3aea6; --line:rgba(30,50,34,.08);
+  --shadow:0 1px 2px rgba(20,40,25,.04),0 8px 26px rgba(20,45,28,.06);
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,"Helvetica Neue",sans-serif;
+  --r:18px; --ease:cubic-bezier(.32,.72,0,1);
+}
+[data-theme="dark"]{
+  --green:#5aa85a; --green-d:#8fce8f; --amber:#e6a94e; --terra:#e08066; --blue:#5fa8cf;
+  --page:#10130e; --card:#191d16; --inner:rgba(255,255,255,.045);
+  --text:#e8efe8; --muted:#94a29a; --faint:#68766e; --line:rgba(255,255,255,.07);
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 12px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font);background:var(--page);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh;transition:background .3s,color .3s}
+.app{display:grid;grid-template-columns:64px 1fr;min-height:100vh}
+svg.ic{width:22px;height:22px;stroke:currentColor;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.rail{background:var(--card);border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:6px;position:sticky;top:0;height:100vh;z-index:20}
+.logo{width:38px;height:38px;border-radius:11px;background:var(--green);display:grid;place-items:center;color:#fff;margin-bottom:14px;flex-shrink:0}
+.rbtn{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;color:var(--faint);cursor:pointer;transition:.15s}
+.rbtn:hover{color:var(--text);background:var(--inner)} .rbtn.on{color:var(--green);background:var(--inner)}
+.rail .sp{margin-top:auto}
+.main{min-width:0;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 26px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:9px}.brand b{font-size:19px;font-weight:800;letter-spacing:-.01em}
+.tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:5px}
+.tabs button{border:none;background:transparent;color:var(--muted);font-family:var(--font);font-size:13.5px;font-weight:600;padding:9px 20px;border-radius:999px;cursor:pointer;transition:.15s}
+.tabs button.on{background:#eef2ec;color:var(--green-d)}
+[data-theme="dark"] .tabs button.on{background:var(--inner)}
+.tr{display:flex;align-items:center;gap:10px}
+.icob{height:40px;padding:0 13px;border-radius:20px;background:var(--card);border:1px solid var(--line);display:inline-flex;align-items:center;gap:7px;color:var(--muted);cursor:pointer;font-family:var(--font);font-size:13px;font-weight:600}
+.icob:hover{color:var(--text)} .icob.rd{width:40px;padding:0;justify-content:center;border-radius:50%}
+.av{width:40px;height:40px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px}
+.wrap{padding:6px 26px 30px;display:flex;flex-direction:column;gap:16px}
+.grid{display:grid;grid-template-columns:minmax(330px,1fr) 1.55fr;gap:16px}
+.col{display:flex;flex-direction:column;gap:16px;min-width:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:18px}
+.ch{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:4px}
+.ch h3{font-size:15px;font-weight:800;letter-spacing:-.01em}.ch .sub{font-size:11.5px;color:var(--muted);margin-top:1px}
+.pill{font-size:10.5px;font-weight:700;padding:4px 11px;border-radius:999px;background:#eaf1e6;color:var(--green-d)}
+[data-theme="dark"] .pill{background:var(--inner)}
+.pill.warn{background:#fbf0dc;color:#9a6714}.pill.bad{background:#fbe6e0;color:#9a3d28}
+.tag{font-size:11px;color:var(--muted);background:var(--inner);border:1px solid var(--line);padding:5px 10px;border-radius:9px;font-weight:600;cursor:pointer}
+.tag:hover{color:var(--green-d)}
+.sched{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:center;margin-top:12px}
+.bigdate{line-height:.9}.bigdate .d{font-size:44px;font-weight:800;letter-spacing:-.03em}.bigdate .m{font-size:13px;color:var(--muted);font-weight:600}
+.tasks{display:flex;flex-direction:column;gap:8px}
+.task{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--inner);border-radius:12px;padding:10px 12px}
+.task .nm{font-size:12.5px;font-weight:700}
+.tiles2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:16px}
+.stat .ico{width:36px;height:36px;border-radius:11px;background:#eef2ec;color:var(--green);display:grid;place-items:center;margin-bottom:12px}
+[data-theme="dark"] .stat .ico{background:var(--inner)}
+.stat .lb{font-size:12px;color:var(--muted);font-weight:600}.stat .vl{font-size:28px;font-weight:800;letter-spacing:-.02em;margin-top:3px}.stat .vl small{font-size:13px;color:var(--muted);font-weight:600}
+.gaugebox{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.gauge{position:relative;display:grid;place-items:center;margin-top:6px}.gauge svg{width:100%;max-width:150px;overflow:visible}
+.g-tr{fill:none;stroke:var(--inner);stroke-width:13;stroke-linecap:round}
+.g-vl{fill:none;stroke-width:13;stroke-linecap:round;transition:stroke-dashoffset .8s var(--ease)}
+.gnum{position:absolute;bottom:4px;text-align:center;line-height:1}.gnum b{font-size:26px;font-weight:800}.gnum small{font-size:12px;color:var(--muted)}
+.res{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0 12px}
+.res .v{font-size:22px;font-weight:800}.res .l{font-size:11px;color:var(--muted);font-weight:600;margin-top:2px}
+.ticks{height:34px;border-radius:9px;background-image:repeating-linear-gradient(90deg,var(--green) 0 2px,transparent 2px 6px);opacity:.85}
+.reslab{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:7px}
+.hero{position:relative;border-radius:var(--r);overflow:hidden;min-height:340px;border:1px solid var(--line);box-shadow:var(--shadow);background:var(--inner)}
+.hero iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.fieldtag{position:absolute;z-index:2;font-size:10.5px;font-weight:700;color:#fff;background:rgba(28,42,34,.6);padding:4px 10px;border-radius:999px}
+.ovl{position:absolute;z-index:2;background:rgba(28,42,34,.74);backdrop-filter:blur(8px);color:#fff;border-radius:14px;padding:12px 15px;min-width:150px;bottom:16px;left:50%;transform:translateX(-50%)}
+.ovl .l{font-size:11px;opacity:.85}.ovl .v{font-size:26px;font-weight:800;margin-top:2px}
+.ovl .st{font-size:11px;font-weight:700;margin-top:6px;padding:3px 10px;border-radius:999px;display:inline-block}
+.ovl .st.ok{background:rgba(120,200,120,.3)}.ovl .st.low{background:rgba(224,170,90,.35)}
+.row3{display:grid;grid-template-columns:1.1fr 1fr;gap:16px}
+.yield .big{font-size:32px;font-weight:800;letter-spacing:-.02em}.yield .big small{font-size:13px;color:var(--muted);font-weight:600}
+.bars{display:flex;align-items:flex-end;gap:5px;height:64px;margin-top:12px}
+.bars span{flex:1;background:#cfe0c4;border-radius:4px 4px 0 0;min-height:6px}.bars span.hi{background:var(--green)}
+[data-theme="dark"] .bars span{background:rgba(255,255,255,.12)}[data-theme="dark"] .bars span.hi{background:var(--green)}
+/* Apple-style temperature curve */
+.tcurve{margin-top:12px;width:100%;max-width:560px;margin-left:auto;margin-right:auto}
+.tcurve svg{display:block;width:100%;height:auto;overflow:visible}
+.tcurve .tc-axis{font-size:9.5px;font-weight:600;fill:var(--faint)}
+.tcurve .tc-hl{font-size:10px;font-weight:800;fill:var(--muted)}
+.tcurve .tc-val{font-size:10px;font-weight:800;fill:var(--text)}
+.tcurve .tc-grid{stroke:var(--line)}
+.tcurve .tc-now{stroke:var(--line);stroke-dasharray:2 3}
+.tcurve .tc-empty{font-size:11.5px;fill:var(--muted)}
+.insight{background:var(--inner);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;justify-content:space-between}
+.insight .t{font-size:14px;font-weight:800;display:flex;align-items:center;gap:8px}.insight .msg{font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+.insight .btn{margin-top:14px;align-self:flex-start;display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);padding:9px 14px;border-radius:12px;font-size:12.5px;font-weight:700;color:var(--green-d);cursor:pointer}
+.zones{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.zone{display:flex;align-items:center;gap:12px;background:var(--inner);border-radius:13px;padding:12px 14px;cursor:pointer}
+.zdot{width:9px;height:9px;border-radius:50%;flex-shrink:0}.zone .nm{font-size:13.5px;font-weight:800}.zone .sub{font-size:11.5px;color:var(--muted);margin-top:1px}
+.zbadge{margin-left:auto;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:999px}
+/* controls */
+.ctlrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.bigval{font-size:30px;font-weight:800;margin-top:6px}
+.btn{height:42px;padding:0 18px;border-radius:13px;border:1px solid var(--line);background:var(--card);color:var(--text);font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{background:var(--inner)} .btn.green{background:var(--green);color:#fff;border-color:transparent}.btn:active{transform:scale(.98)}
+.chip2{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;padding:5px 12px;border-radius:999px;background:var(--inner);color:var(--muted)}
+.chip2.on{background:#e9f2e6;color:var(--green-d)}
+/* charts */
+.chartgrid{display:grid;grid-template-columns:1.5fr 1fr;gap:16px}
+.chartgrid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.donutwrap{position:relative}.donutc{position:absolute;inset:0;display:grid;place-items:center;text-align:center;pointer-events:none}
+.donutc b{font-size:24px;font-weight:800}.donutc small{font-size:11px;color:var(--muted)}
+.legend{display:flex;flex-direction:column;gap:8px;margin-top:14px}.legend .li{display:flex;align-items:center;gap:8px;font-size:12.5px}
+.legend .sw{width:10px;height:10px;border-radius:3px}.legend .vv{margin-left:auto;font-weight:800;color:var(--muted)}
+/* table */
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{text-align:left;color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;padding:9px 6px;border-bottom:1px solid var(--line)}
+tbody td{padding:11px 6px;border-bottom:1px solid var(--line)}tbody tr:last-child td{border-bottom:none}
+.evp{padding:4px 10px;border-radius:999px;font-size:11px;font-weight:700}
+.evp.water{background:#e5eff6;color:#2b6a90}.evp.stop{background:#e9f2e6;color:var(--green-d)}.evp.alert{background:#fbe6e0;color:#9a3d28}.evp.config{background:var(--inner);color:var(--muted)}
+.empty{color:var(--muted);text-align:center;padding:24px}
+/* camera */
+.cam{position:relative;border-radius:14px;overflow:hidden;background:var(--inner);min-height:220px;display:grid;place-items:center;margin-top:12px}
+.cam img,.cam video{width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.cam .ce{color:var(--muted);font-size:12.5px;text-align:center;padding:20px;position:relative;z-index:1}
+/* drawer */
+.ov{position:fixed;inset:0;background:rgba(10,20,14,.4);opacity:0;pointer-events:none;transition:.3s;z-index:60}.ov.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:-460px;width:420px;max-width:94vw;height:100%;background:var(--card);border-left:1px solid var(--line);box-shadow:-20px 0 50px rgba(0,0,0,.2);transition:right .38s var(--ease);z-index:70;padding:26px;overflow-y:auto}
+.drawer.open{right:0}.drawer h2{font-size:21px;font-weight:800;margin-bottom:16px}
+.sub2{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--faint);font-weight:700;margin:20px 0 12px;display:flex;justify-content:space-between;align-items:center}
+.field{margin-bottom:16px}.field label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;color:var(--muted)}.field label b{color:var(--text);font-weight:800}
+input[type=range]{width:100%;accent-color:var(--green);cursor:pointer}
+.inp{width:100%;padding:11px 13px;border-radius:12px;border:1px solid var(--line);background:var(--inner);color:var(--text);font-size:14px;font-family:var(--font);outline:none;margin-bottom:10px}
+.inp:focus{border-color:var(--green)}
+.trow{display:flex;align-items:center;justify-content:space-between;min-height:42px;font-size:14px}
+.sw{position:relative;width:46px;height:27px;flex-shrink:0}.sw input{display:none}
+.sw .sl{position:absolute;inset:0;border-radius:999px;background:var(--inner);border:1px solid var(--line);cursor:pointer;transition:.3s}
+.sw .sl::before{content:"";position:absolute;width:21px;height:21px;border-radius:50%;background:#fff;top:2px;left:2px;transition:.3s var(--ease);box-shadow:0 2px 5px rgba(0,0,0,.25)}
+.sw input:checked+.sl{background:var(--green);border-color:transparent}.sw input:checked+.sl::before{transform:translateX(19px)}
+.seg{display:flex;gap:5px;background:var(--inner);border:1px solid var(--line);border-radius:13px;padding:5px;margin-bottom:14px}
+.seg button{flex:1;min-height:34px;border-radius:9px;border:none;background:transparent;color:var(--muted);font-weight:700;font-size:12.5px;font-family:var(--font);cursor:pointer}
+.seg button.on{background:var(--card);color:var(--text);box-shadow:var(--shadow)}
+.mini{height:38px;padding:0 12px;border-radius:11px;border:1px solid var(--line);background:var(--inner);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--font)}
+.mini.green{background:var(--green);color:#fff;border-color:transparent}.mini.danger{color:var(--terra)}
+.seced{background:var(--inner);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}.seced .r{display:flex;gap:7px;margin-bottom:7px}.seced .r:last-child{margin-bottom:0}.seced .inp{margin:0}
+.schedchip{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:11px;background:var(--inner);border:1px solid var(--line);font-size:13px;font-weight:700;margin:4px 4px 0 0}
+.schedchip .x{cursor:pointer;color:var(--terra);font-weight:800}
+.divh{height:1px;background:var(--line);margin:18px 0}
+.msg{font-size:12.5px;font-weight:700;margin-bottom:10px;display:none}.msg.show{display:block}.msg.err{color:var(--terra)}.msg.ok{color:var(--green-d)}
+.locpop{position:fixed;z-index:65;width:320px;max-width:90vw;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px;display:none}
+.locpop.open{display:block}.locitem{padding:10px;border-radius:10px;cursor:pointer}.locitem:hover{background:var(--inner)}.locitem .nm{font-size:13px;font-weight:700}.locitem .s{font-size:11px;color:var(--muted)}
+.note{font-size:11px;color:var(--faint);text-align:center;padding:8px}
+.hidden{display:none}
+@media(max-width:1100px){.grid,.chartgrid,.chartgrid2,.row3{grid-template-columns:1fr}}
+@media(max-width:640px){.tabs{display:none}.tiles2,.gaugebox{grid-template-columns:1fr}}
+</style>
 </head>
-<body>
-  <div class="app">
-    <aside class="sidebar" id="sidebar">
-      <div class="side-brand">
-        <div class="logo">🌱</div>
-        <div><b>SPORO</b><small>Team BRUTICUS</small></div>
-      </div>
-      <div class="nav-label" data-i18n="nav.monitor">Giám sát</div>
-      <a class="nav-item active" data-scroll="cards"><span class="ic">▦</span> <span data-i18n="nav.overview">Tổng quan</span></a>
-      <a class="nav-item" data-scroll="charts"><span class="ic">📈</span> <span data-i18n="nav.charts">Biểu đồ cảm biến</span></a>
-      <a class="nav-item" data-scroll="analytics"><span class="ic">🍩</span> <span data-i18n="nav.analytics">Phân tích</span></a>
-      <a class="nav-item" data-scroll="log"><span class="ic">🗒️</span> <span data-i18n="nav.log">Nhật ký sự kiện</span></a>
-      <div class="nav-label" data-i18n="nav.system">Hệ thống</div>
-      <a class="nav-item" id="navSettings"><span class="ic">⚙️</span> <span data-i18n="nav.settings">Cài đặt ngưỡng</span></a>
-      <a class="nav-item" id="navTheme"><span class="ic">🌗</span> <span data-i18n="nav.theme">Đổi giao diện</span></a>
-      <div class="nav-label" data-i18n="nav.devices">Thiết bị</div>
-      <a class="nav-item"><span class="ic">🌡️</span> <span data-i18n="nav.sensorTemp">Cảm biến SHT31</span></a>
-      <a class="nav-item"><span class="ic">💧</span> <span data-i18n="nav.sensorMoist">Cảm biến độ ẩm</span></a>
-      <a class="nav-item"><span class="ic">🚿</span> <span data-i18n="nav.valve">Van tưới</span></a>
-    </aside>
-
-    <div class="main">
-      <div class="topbar">
-        <div style="display:flex;align-items:center;gap:12px">
-          <button class="icon-btn hamburger" id="hamburger">☰</button>
-          <div class="title"><h2 data-i18n="top.title">Dashboard</h2><div class="crumb" data-i18n="top.crumb">Giám sát · Batch #001 — Ớt F1-999 · Khay A1</div></div>
-        </div>
-        <div class="top-right">
-          <div class="search"><span>🔍</span><input data-i18n-ph="top.search" placeholder="Tìm kiếm…"></div>
-          <div class="status-badge idle" id="statusBadge"><span class="dot"></span><span id="statusText" data-i18n="st.idle">CHỜ</span></div>
-          <button class="icon-btn" id="langBtn" title="Ngôn ngữ">VI</button>
-          <button class="icon-btn" id="themeBtn" title="Sáng / Tối">🌙</button>
-          <button class="icon-btn" id="gearBtn" title="Cài đặt">⚙️</button>
-          <div class="avatar">HK</div>
-        </div>
-      </div>
-
-      <div class="content">
-        <div class="cards" id="cards">
-          <div class="stat">
-            <div class="top"><div class="label" data-i18n="card.temp">Nhiệt độ</div><div class="tile" style="background:var(--orange-t);color:var(--orange)">🌡️</div></div>
-            <div class="value"><span id="tempVal">--</span><span class="u"> °C</span></div>
-            <span class="trend flat" id="tempTrend" data-i18n="card.waitData">— chờ dữ liệu</span>
-          </div>
-          <div class="stat">
-            <div class="top"><div class="label" data-i18n="card.moist">Độ ẩm đất</div><div class="tile" style="background:var(--sky-t);color:var(--sky)">💧</div></div>
-            <div class="value"><span id="moistVal">--</span><span class="u"> %</span></div>
-            <span class="trend flat" id="moistTrend" data-i18n="card.waitData">— chờ dữ liệu</span>
-          </div>
-          <div class="stat">
-            <div class="top"><div class="label" data-i18n="card.valve">Van tưới</div><div class="tile" style="background:var(--blue-t);color:var(--blue)">🚿</div></div>
-            <div class="value" id="valveVal" style="font-size:22px">—</div>
-            <span class="trend flat" id="valveTrend" data-i18n="card.valveStatus">Trạng thái hiện tại</span>
-          </div>
-          <div class="stat">
-            <div class="top"><div class="label" data-i18n="card.waterToday">Tưới hôm nay</div><div class="tile" style="background:var(--green-t);color:var(--green)">✅</div></div>
-            <div class="value" id="waterCount">0</div>
-            <span class="trend flat" id="waterSub" data-i18n="card.noWater">Chưa có lần tưới</span>
-          </div>
-          <div class="stat">
-            <div class="top"><div class="label" data-i18n="card.zone">Vùng tối ưu</div><div class="tile" style="background:var(--purple-t);color:var(--purple)">🎯</div></div>
-            <div class="value"><span id="zoneVal">0</span><span class="u"> %</span></div>
-            <span class="trend flat" id="zoneTrend" data-i18n="card.zoneSub">Nhiệt trong vùng thuận lợi</span>
-          </div>
-          <div class="stat">
-            <div class="top"><div class="label" data-i18n="card.samples">Mẫu đã ghi</div><div class="tile" style="background:var(--pink-t);color:var(--pink)">📊</div></div>
-            <div class="value" id="sampleCount">0</div>
-            <span class="trend flat" id="sampleTrend" data-i18n="card.dataPoints">Điểm dữ liệu</span>
-          </div>
-        </div>
-
-        <div class="grid-2" id="charts">
-          <div class="panel">
-            <div class="ph"><div><h3 data-i18n="p.tempTime">Nhiệt độ theo thời gian</h3><div class="desc" id="tempDesc">SHT31 — 25–30°C</div></div><span class="chip">°C</span></div>
-            <canvas id="tempChart" height="140"></canvas>
-          </div>
-          <div class="panel">
-            <div class="ph"><div><h3 data-i18n="p.dist">Phân bố nhiệt độ</h3><div class="desc" data-i18n="p.distDesc">Tỉ lệ mẫu trong / ngoài vùng</div></div></div>
-            <div style="position:relative">
-              <canvas id="zoneDonut" height="150"></canvas>
-              <div class="donut-center"><div><div class="big" id="donutBig">0%</div><div class="sm" data-i18n="donut.optimal">tối ưu</div></div></div>
-            </div>
-            <div class="legend" id="donutLegend"></div>
-          </div>
-        </div>
-
-        <div class="grid-2b" id="analytics">
-          <div class="panel">
-            <div class="ph"><div><h3 data-i18n="p.moistTime">Độ ẩm đất theo thời gian</h3><div class="desc" id="moistDesc">Capacitive — ON 45% / OFF 65%</div></div><span class="chip">%</span></div>
-            <canvas id="moistChart" height="140"></canvas>
-          </div>
-          <div class="panel">
-            <div class="ph"><div><h3 data-i18n="p.waterHour">Số lần tưới theo giờ</h3><div class="desc" data-i18n="p.waterHourDesc">Tần suất kích hoạt van trong ngày</div></div><span class="chip" data-i18n="chip.times">lần</span></div>
-            <canvas id="waterBar" height="140"></canvas>
-          </div>
-        </div>
-
-        <div class="bottom" id="log">
-          <div class="panel">
-            <div class="ph"><div><h3 data-i18n="p.eventLog">Lịch sử sự kiện</h3><div class="desc" data-i18n="p.eventDesc">Nhật ký tưới &amp; cảnh báo tự động</div></div></div>
-            <table>
-              <thead><tr><th data-i18n="th.time">Thời gian</th><th data-i18n="th.event">Sự kiện</th><th data-i18n="th.detail">Chi tiết</th></tr></thead>
-              <tbody id="eventBody"><tr><td colspan="3" class="empty" data-i18n="empty.events">Chưa có sự kiện</td></tr></tbody>
-            </table>
-          </div>
-          <div class="panel">
-            <div class="ph"><div><h3 data-i18n="p.logic">Logic quyết định</h3><div class="desc" data-i18n="p.logicDesc">Trạng thái điều khiển</div></div></div>
-            <div class="valve-box">
-              <div class="valve" id="valveBox"><div class="st" data-i18n="box.valve">Van tưới</div><div class="sv" id="valveState">—</div></div>
-              <div class="valve" id="warnBox"><div class="st" data-i18n="box.warn">Cảnh báo</div><div class="sv" id="warnState" data-i18n="warn.normal">Bình thường</div></div>
-            </div>
-            <div class="logic-row"><div class="k" style="background:var(--sky)"></div><div><div class="t1" data-i18n="logic.on">Trigger ON (bật tưới)</div><div class="t2"><span data-i18n="logic.onPre">Độ ẩm &lt; </span><span id="lg-on">45</span>%</div></div></div>
-            <div class="logic-row"><div class="k" style="background:var(--green)"></div><div><div class="t1" data-i18n="logic.off">Trigger OFF (tắt tưới)</div><div class="t2"><span data-i18n="logic.offPre">Độ ẩm ≥ </span><span id="lg-off">65</span>%</div></div></div>
-            <div class="logic-row"><div class="k" style="background:var(--orange)"></div><div><div class="t1" data-i18n="logic.dur">Thời lượng mỗi lần tưới</div><div class="t2"><span id="lg-dur">13</span> <span data-i18n="logic.durUnit">giây</span></div></div></div>
-            <div class="logic-row"><div class="k" style="background:var(--purple)"></div><div><div class="t1" data-i18n="logic.zone">Vùng nhiệt thuận lợi</div><div class="t2"><span id="lg-tmin">25</span>–<span id="lg-tmax">30</span> °C</div></div></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="overlay" id="overlay"></div>
-  <aside class="drawer" id="drawer">
-    <h2 data-i18n="dr.title">Cài đặt</h2>
-    <div class="hint" data-i18n="dr.hint">Tùy chỉnh giao diện và ngưỡng điều khiển. Ngưỡng được gửi về server và áp dụng ngay.</div>
-    <div class="hint" style="margin-bottom:10px"><b data-i18n="dr.lang">Ngôn ngữ</b></div>
-    <div class="seg" id="langSeg"><button data-lang="vi">Tiếng Việt</button><button data-lang="en">English</button></div>
-    <div class="divider"></div>
-    <div class="toggle-row"><span data-i18n="dr.dark">Chế độ tối</span><label class="switch"><input type="checkbox" id="darkToggle"><span class="slider"></span></label></div>
-    <div class="toggle-row"><span data-i18n="dr.auto">Tự động cập nhật (5s)</span><label class="switch"><input type="checkbox" id="autoToggle" checked><span class="slider"></span></label></div>
-    <div class="toggle-row"><span><span data-i18n="dr.demo">🧪 Chế độ Demo</span> <small style="color:var(--muted)" data-i18n="dr.demoSub">(dữ liệu giả)</small></span><label class="switch"><input type="checkbox" id="demoToggle"><span class="slider"></span></label></div>
-    <div class="divider"></div>
-    <div class="hint" style="margin-bottom:12px"><b data-i18n="dr.range">Khoảng thời gian biểu đồ</b></div>
-    <div class="seg" id="rangeSeg"><button data-range="20" data-i18n="seg.20">20 điểm</button><button data-range="50" class="active" data-i18n="seg.50">50 điểm</button><button data-range="0" data-i18n="seg.all">Tất cả</button></div>
-    <div class="divider"></div>
-    <div class="hint" style="margin-bottom:12px"><b data-i18n="dr.thresh">Ngưỡng điều khiển</b></div>
-    <div class="field"><label><span data-i18n="f.on">Bật tưới khi ẩm dưới</span> <b><span id="v-on">45</span>%</b></label><input type="range" id="s-on" min="10" max="60" value="45"></div>
-    <div class="field"><label><span data-i18n="f.off">Tắt tưới khi ẩm đạt</span> <b><span id="v-off">65</span>%</b></label><input type="range" id="s-off" min="50" max="90" value="65"></div>
-    <div class="field"><label><span data-i18n="f.tmin">Vùng nhiệt — cận dưới</span> <b><span id="v-tmin">25</span>°C</b></label><input type="range" id="s-tmin" min="10" max="30" value="25"></div>
-    <div class="field"><label><span data-i18n="f.tmax">Vùng nhiệt — cận trên</span> <b><span id="v-tmax">30</span>°C</b></label><input type="range" id="s-tmax" min="28" max="45" value="30"></div>
-    <div class="field"><label><span data-i18n="f.dur">Thời lượng tưới</span> <b><span id="v-dur">13</span>s</b></label><input type="range" id="s-dur" min="3" max="60" value="13"></div>
-    <button class="btn-save" id="saveBtn" data-i18n="dr.save">Lưu &amp; áp dụng</button>
+<body data-theme="light">
+<div class="app">
+  <aside class="rail">
+    <div class="logo"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3c-4 4-4 10 0 14 4-4 4-10 0-14z"/><path d="M12 21v-8"/></svg></div>
+    <div class="rbtn on" data-go="secOv" title="Tổng quan"><svg class="ic" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></div>
+    <div class="rbtn" data-go="secMon" title="Giám sát"><svg class="ic" viewBox="0 0 24 24"><path d="M9 4l6 2 6-2v14l-6 2-6-2-6 2V6z"/><path d="M9 4v14M15 6v14"/></svg></div>
+    <div class="rbtn" data-go="secChart" title="Biểu đồ"><svg class="ic" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
+    <div class="rbtn" data-go="secLog" title="Nhật ký"><svg class="ic" viewBox="0 0 24 24"><path d="M8 4h9a2 2 0 012 2v14H8z"/><path d="M8 4a2 2 0 00-2 2v12"/><path d="M11 9h5M11 13h5"/></svg></div>
+    <div class="rbtn sp" id="railSet" title="Cài đặt"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1l2-1.5-2-3.5-2.4 1a7 7 0 00-1.7-1L14.5 3h-4l-.3 2.5a7 7 0 00-1.7 1l-2.4-1-2 3.5 2 1.5a7 7 0 000 2l-2 1.5 2 3.5 2.4-1a7 7 0 001.7 1l.3 2.5h4l.3-2.5a7 7 0 001.7-1l2.4 1 2-3.5-2-1.5c.1-.3.1-.7.1-1z"/></svg></div>
   </aside>
 
-  <script>
-    try { if (window["chartjs-plugin-annotation"]) Chart.register(window["chartjs-plugin-annotation"]); } catch(e){}
+  <div class="main">
+    <div class="top">
+      <div class="brand"><svg class="ic" viewBox="0 0 24 24" style="width:26px;height:26px;stroke:var(--green)"><path d="M12 3c-4 4-4 10 0 14 4-4 4-10 0-14z"/><path d="M12 21v-8"/></svg><b>AgriVision</b></div>
+      <div class="tabs"><button class="on" data-go="secOv">Tổng quan</button><button data-go="secMon">Giám sát</button><button data-go="secChart">Biểu đồ</button><button data-go="secLog">Nhật ký</button></div>
+      <div class="tr">
+        <button class="icob" id="csvBtn">CSV</button>
+        <button class="icob rd" id="themeBtn" title="Sáng/Tối"><svg class="ic" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1111.2 3 7 7 0 0021 12.8z"/></svg></button>
+        <button class="icob rd" id="gearBtn" title="Cài đặt"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1l2-1.5-2-3.5-2.4 1a7 7 0 00-1.7-1L14.5 3h-4l-.3 2.5a7 7 0 00-1.7 1l-2.4-1-2 3.5 2 1.5a7 7 0 000 2l-2 1.5 2 3.5 2.4-1a7 7 0 001.7 1l.3 2.5h4l.3-2.5a7 7 0 001.7-1l2.4 1 2-3.5-2-1.5c.1-.3.1-.7.1-1z"/></svg></button>
+        <div class="av" id="av">?</div>
+        <button class="icob rd" id="logoutBtn" title="Đăng xuất"><svg class="ic" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/></svg></button>
+      </div>
+    </div>
 
-    // ================= I18N =================
-    const DICT = {
-      vi: {
-        "nav.monitor":"Giám sát","nav.overview":"Tổng quan","nav.charts":"Biểu đồ cảm biến","nav.analytics":"Phân tích","nav.log":"Nhật ký sự kiện",
-        "nav.system":"Hệ thống","nav.settings":"Cài đặt ngưỡng","nav.theme":"Đổi giao diện","nav.devices":"Thiết bị","nav.sensorTemp":"Cảm biến SHT31","nav.sensorMoist":"Cảm biến độ ẩm","nav.valve":"Van tưới",
-        "top.title":"Dashboard","top.crumb":"Giám sát · Batch #001 — Ớt F1-999 · Khay A1","top.search":"Tìm kiếm…",
-        "st.idle":"CHỜ","st.watering":"ĐANG TƯỚI","st.disconnected":"MẤT KẾT NỐI",
-        "card.temp":"Nhiệt độ","card.moist":"Độ ẩm đất","card.valve":"Van tưới","card.waterToday":"Tưới hôm nay","card.zone":"Vùng tối ưu","card.samples":"Mẫu đã ghi",
-        "card.waitData":"— chờ dữ liệu","card.valveStatus":"Trạng thái hiện tại","card.noWater":"Chưa có lần tưới","card.zoneSub":"Nhiệt trong vùng thuận lợi","card.dataPoints":"Điểm dữ liệu",
-        "valve.open":"ĐANG MỞ","valve.closed":"Đóng",
-        "trend.watering":"Đang tưới","trend.waitWater":"Chờ tưới","trend.stable":"Ổn định","trend.watch":"Cần theo dõi","trend.lastAt":"Lần cuối ",
-        "p.tempTime":"Nhiệt độ theo thời gian","p.dist":"Phân bố nhiệt độ","p.distDesc":"Tỉ lệ mẫu trong / ngoài vùng","donut.optimal":"tối ưu",
-        "leg.inzone":"Trong vùng","leg.hot":"Hơi nóng","leg.cold":"Hơi lạnh",
-        "p.moistTime":"Độ ẩm đất theo thời gian","p.waterHour":"Số lần tưới theo giờ","p.waterHourDesc":"Tần suất kích hoạt van trong ngày","chip.times":"lần",
-        "p.eventLog":"Lịch sử sự kiện","p.eventDesc":"Nhật ký tưới & cảnh báo tự động","th.time":"Thời gian","th.event":"Sự kiện","th.detail":"Chi tiết","empty.events":"Chưa có sự kiện",
-        "p.logic":"Logic quyết định","p.logicDesc":"Trạng thái điều khiển","box.valve":"Van tưới","box.warn":"Cảnh báo","warn.normal":"Bình thường","warn.abnormal":"⚠ Bất thường",
-        "logic.on":"Trigger ON (bật tưới)","logic.onPre":"Độ ẩm < ","logic.off":"Trigger OFF (tắt tưới)","logic.offPre":"Độ ẩm ≥ ","logic.dur":"Thời lượng mỗi lần tưới","logic.durUnit":"giây","logic.zone":"Vùng nhiệt thuận lợi",
-        "ev.water":"Tưới","ev.stop":"Tắt","ev.alert":"Cảnh báo","ev.config":"Cấu hình",
-        "dr.title":"Cài đặt","dr.hint":"Tùy chỉnh giao diện và ngưỡng điều khiển. Ngưỡng được gửi về server và áp dụng ngay.","dr.lang":"Ngôn ngữ",
-        "dr.dark":"Chế độ tối","dr.auto":"Tự động cập nhật (5s)","dr.demo":"🧪 Chế độ Demo","dr.demoSub":"(dữ liệu giả)","dr.range":"Khoảng thời gian biểu đồ",
-        "seg.20":"20 điểm","seg.50":"50 điểm","seg.all":"Tất cả","dr.thresh":"Ngưỡng điều khiển",
-        "f.on":"Bật tưới khi ẩm dưới","f.off":"Tắt tưới khi ẩm đạt","f.tmin":"Vùng nhiệt — cận dưới","f.tmax":"Vùng nhiệt — cận trên","f.dur":"Thời lượng tưới",
-        "dr.save":"Lưu & áp dụng","dr.saving":"Đang lưu…","dr.saved":"✓ Đã lưu","dr.saveErr":"Lỗi — thử lại",
-        "tempDescTpl":"SHT31 — vùng thuận lợi {min}–{max}°C","moistDescTpl":"Capacitive — ON {on}% / OFF {off}%"
-      },
-      en: {
-        "nav.monitor":"Monitoring","nav.overview":"Overview","nav.charts":"Sensor charts","nav.analytics":"Analytics","nav.log":"Event log",
-        "nav.system":"System","nav.settings":"Threshold settings","nav.theme":"Toggle theme","nav.devices":"Devices","nav.sensorTemp":"SHT31 sensor","nav.sensorMoist":"Moisture sensor","nav.valve":"Irrigation valve",
-        "top.title":"Dashboard","top.crumb":"Monitoring · Batch #001 — Chili F1-999 · Tray A1","top.search":"Search…",
-        "st.idle":"IDLE","st.watering":"WATERING","st.disconnected":"DISCONNECTED",
-        "card.temp":"Temperature","card.moist":"Soil moisture","card.valve":"Valve","card.waterToday":"Watered today","card.zone":"Optimal zone","card.samples":"Samples logged",
-        "card.waitData":"— waiting for data","card.valveStatus":"Current status","card.noWater":"No watering yet","card.zoneSub":"Temp within favorable range","card.dataPoints":"Data points",
-        "valve.open":"OPEN","valve.closed":"Closed",
-        "trend.watering":"Watering","trend.waitWater":"Idle","trend.stable":"Stable","trend.watch":"Monitor","trend.lastAt":"Last ",
-        "p.tempTime":"Temperature over time","p.dist":"Temperature distribution","p.distDesc":"Samples in / out of range","donut.optimal":"optimal",
-        "leg.inzone":"In range","leg.hot":"Too warm","leg.cold":"Too cold",
-        "p.moistTime":"Soil moisture over time","p.waterHour":"Waterings per hour","p.waterHourDesc":"Valve activations during the day","chip.times":"times",
-        "p.eventLog":"Event history","p.eventDesc":"Automatic watering & alert log","th.time":"Time","th.event":"Event","th.detail":"Detail","empty.events":"No events yet",
-        "p.logic":"Decision logic","p.logicDesc":"Control status","box.valve":"Valve","box.warn":"Alert","warn.normal":"Normal","warn.abnormal":"⚠ Abnormal",
-        "logic.on":"Trigger ON (start watering)","logic.onPre":"Moisture < ","logic.off":"Trigger OFF (stop watering)","logic.offPre":"Moisture ≥ ","logic.dur":"Watering duration","logic.durUnit":"seconds","logic.zone":"Favorable temp range",
-        "ev.water":"Water","ev.stop":"Stop","ev.alert":"Alert","ev.config":"Config",
-        "dr.title":"Settings","dr.hint":"Customize the interface and control thresholds. Thresholds are sent to the server and applied instantly.","dr.lang":"Language",
-        "dr.dark":"Dark mode","dr.auto":"Auto refresh (5s)","dr.demo":"🧪 Demo mode","dr.demoSub":"(fake data)","dr.range":"Chart time range",
-        "seg.20":"20 points","seg.50":"50 points","seg.all":"All","dr.thresh":"Control thresholds",
-        "f.on":"Start watering below","f.off":"Stop watering at","f.tmin":"Temp range — lower","f.tmax":"Temp range — upper","f.dur":"Watering duration",
-        "dr.save":"Save & apply","dr.saving":"Saving…","dr.saved":"✓ Saved","dr.saveErr":"Error — retry",
-        "tempDescTpl":"SHT31 — favorable range {min}–{max}°C","moistDescTpl":"Capacitive — ON {on}% / OFF {off}%"
-      }
-    };
-    let lang = localStorage.getItem("sporo-lang") || "vi";
-    function t(k){ return (DICT[lang] && DICT[lang][k] != null) ? DICT[lang][k] : (DICT.vi[k] != null ? DICT.vi[k] : k); }
-    const langBtn = document.getElementById("langBtn");
-    function applyLang(){
-      document.documentElement.lang = lang;
-      document.querySelectorAll("[data-i18n]").forEach(el=>{ el.textContent = t(el.dataset.i18n); });
-      document.querySelectorAll("[data-i18n-ph]").forEach(el=>{ el.placeholder = t(el.dataset.i18nPh); });
-      langBtn.textContent = lang.toUpperCase();
-      document.querySelectorAll("#langSeg button").forEach(b=>b.classList.toggle("active", b.dataset.lang===lang));
-      if (lastData) render(lastData);
-    }
-    function setLang(l){ lang=l; localStorage.setItem("sporo-lang",l); applyLang(); }
-    langBtn.onclick = ()=> setLang(lang==="vi"?"en":"vi");
-    document.querySelectorAll("#langSeg button").forEach(b=>{ b.onclick=()=>setLang(b.dataset.lang); });
+    <div class="wrap">
+      <!-- ===== TỔNG QUAN ===== -->
+      <section class="grid" id="secOv">
+        <div class="col">
+          <div class="card">
+            <div class="ch"><div><h3>Lịch hôm nay</h3><div class="sub">Hoạt động trong ngày</div></div></div>
+            <div class="sched"><div class="bigdate"><div class="d" id="dayNum">--</div><div class="m" id="dayMon">—</div></div><div class="tasks" id="tasks"></div></div>
+          </div>
+          <div class="tiles2">
+            <div class="stat"><div class="ico"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3c-4 4-4 10 0 14 4-4 4-10 0-14z"/></svg></div><div class="lb">Mẫu đã ghi</div><div class="vl"><span id="samples">0</span> <small>mẫu</small></div></div>
+            <div class="stat"><div class="ico"><svg class="ic" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></div><div class="lb">Khu đang trồng</div><div class="vl"><span id="zones">0</span> <small>khu</small></div></div>
+          </div>
+          <div class="card">
+            <div class="gaugebox">
+              <div><div class="ch"><div><h3>Khí hậu</h3><div class="sub">Nhiệt độ vườn</div></div></div><div class="gauge"><svg viewBox="0 0 160 96"><path class="g-tr" d="M14 88 A66 66 0 0 1 146 88"/><path class="g-vl" id="climArc" d="M14 88 A66 66 0 0 1 146 88" style="stroke:var(--amber)"/></svg><div class="gnum"><b id="climT">--</b><small>°C</small></div></div></div>
+              <div><div class="ch"><div><h3>Hiệu quả</h3><div class="sub">Chỉ số thuận lợi</div></div></div><div class="gauge"><svg viewBox="0 0 160 96"><path class="g-tr" d="M14 88 A66 66 0 0 1 146 88"/><path class="g-vl" id="effArc" d="M14 88 A66 66 0 0 1 146 88" style="stroke:var(--green)"/></svg><div class="gnum"><b id="effV">0</b><small>%</small></div></div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ch"><div><h3>Tài nguyên vườn</h3><div class="sub">Cập nhật realtime</div></div></div>
+            <div class="res"><div><div class="v"><span id="rMoist">--</span>%</div><div class="l">Độ ẩm đất</div></div><div><div class="v"><span id="rFav">0</span>%</div><div class="l">Vùng thuận lợi</div></div><div><div class="v" id="rWater">0</div><div class="l">Tưới hôm nay</div></div></div>
+            <div class="ticks"></div><div class="reslab"><span>Chưa tối ưu</span><span>Tối ưu</span></div>
+          </div>
+          <div class="card">
+            <div class="ch"><div><h3>Điều khiển tưới</h3><div class="sub" id="valveSub">—</div></div><span class="pill" id="valvePill">—</span></div>
+            <div class="bigval" id="valveBig">—</div>
+            <div class="ctlrow"><button class="btn green" id="waterNow">Tưới ngay</button><button class="btn" id="waterStop">Dừng tưới</button></div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="hero">
+            <iframe id="gmap" title="Bản đồ" loading="lazy"></iframe>
+            <div class="fieldtag" style="top:18%;left:20%" id="fieldTag">Khu A1</div>
+            <div class="ovl"><div class="l">Độ ẩm đất</div><div class="v"><span id="ovMoist">--</span>%</div><span class="st ok" id="ovSt">Ổn định</span></div>
+          </div>
+          <div class="row3">
+            <div class="card yield">
+              <div class="ch"><div><h3>Nhiệt độ hôm nay</h3><div class="sub">Cao / thấp trong ngày</div></div></div>
+              <div class="big" style="margin-top:8px"><span id="tHi">--</span><small>°C cao</small> &nbsp; <span id="tLo" style="color:var(--muted)">--</span><small>°C thấp</small></div>
+              <div class="tcurve" id="tempCurve"></div>
+            </div>
+            <div class="insight">
+              <div><div class="t"><svg class="ic" viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--green)"><path d="M12 3v2M5 5l1.5 1.5M3 12h2M19 5l-1.5 1.5M21 12h-2M12 8a4 4 0 00-2 7.5V18h4v-2.5A4 4 0 0012 8z"/></svg> Gợi ý thông minh</div><div class="msg2" id="aiMsg" style="font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5">Đang phân tích…</div></div>
+              <div class="btn2" style="margin-top:14px;align-self:flex-start;display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);padding:9px 14px;border-radius:12px;font-size:12.5px;font-weight:700;color:var(--green-d);cursor:pointer" id="aiBtn">Đổi vị trí thời tiết</div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="ch"><div><h3>Sức khỏe theo khu</h3><div class="sub">Nhấn để chọn khu · quản lý trong Cài đặt</div></div><span class="pill" id="ovAll">—</span></div>
+            <div class="zones" id="zoneList"></div>
+          </div>
+        </div>
+      </section>
 
-    // ================= THEME =================
-    const root = document.documentElement;
-    const savedTheme = localStorage.getItem("sporo-theme") || "light";
-    root.setAttribute("data-theme", savedTheme);
-    const themeBtn = document.getElementById("themeBtn"), darkToggle = document.getElementById("darkToggle");
-    function applyTheme(th){ root.setAttribute("data-theme",th); localStorage.setItem("sporo-theme",th); themeBtn.textContent=th==="dark"?"🌙":"☀️"; darkToggle.checked=th==="dark"; rebuildChartsTheme(); }
-    themeBtn.onclick = ()=>applyTheme(root.getAttribute("data-theme")==="dark"?"light":"dark");
-    document.getElementById("navTheme").onclick = themeBtn.onclick;
-    darkToggle.onchange = ()=>applyTheme(darkToggle.checked?"dark":"light");
+      <!-- ===== GIÁM SÁT: trạm + camera ===== -->
+      <section class="grid" id="secMon">
+        <div class="card col" style="gap:0">
+          <div class="ch"><div><h3>Trạm quan trắc</h3><div class="sub">Dữ liệu Open-Meteo</div></div><span class="tag" id="myLocBtn">Vị trí của tôi</span></div>
+          <div class="tiles2" style="margin-top:12px">
+            <div class="stat" style="box-shadow:none;background:var(--inner)"><div class="lb">Thời tiết</div><div class="vl"><span id="wxTemp">--</span><small>°C · <span id="wxCond">—</span></small></div></div>
+            <div class="stat" style="box-shadow:none;background:var(--inner)"><div class="lb">Gió</div><div class="vl"><span id="wxWind">--</span><small> m/s</small></div></div>
+            <div class="stat" style="box-shadow:none;background:var(--inner)"><div class="lb">Độ ẩm KK</div><div class="vl"><span id="wxHum">--</span><small>%</small></div></div>
+            <div class="stat" style="box-shadow:none;background:var(--inner)"><div class="lb">Xác suất mưa</div><div class="vl"><span id="wxRain">--</span><small>%</small></div></div>
+            <div class="stat" style="box-shadow:none;background:var(--inner)"><div class="lb">Bình minh</div><div class="vl" style="font-size:18px" id="wxSunrise">--</div></div>
+            <div class="stat" style="box-shadow:none;background:var(--inner)"><div class="lb">Hoàng hôn</div><div class="vl" style="font-size:18px" id="wxSunset">--</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><div><h3>Camera / Hình ảnh</h3><div class="sub" id="camSec">—</div></div></div>
+          <div class="cam" id="camBox"><div class="ce" id="camEmpty">Chưa có ảnh. Tải ảnh lên hoặc bật camera.</div><img id="camImg" style="display:none" alt=""><video id="camVideo" style="display:none" autoplay muted playsinline></video></div>
+          <div class="ctlrow"><button class="mini" id="camUp">Tải ảnh</button><button class="mini" id="camStart">Bật camera</button><button class="mini green" id="camSnap" style="display:none">Chụp</button><button class="mini" id="camStop" style="display:none">Tắt</button><button class="mini" id="camClear">Xoá ảnh</button><input type="file" id="camFile" accept="image/*" class="hidden"></div>
+        </div>
+      </section>
 
-    // ================= SIDEBAR =================
-    const sidebar = document.getElementById("sidebar");
-    document.getElementById("hamburger").onclick = ()=>sidebar.classList.toggle("open");
-    document.querySelectorAll(".nav-item[data-scroll]").forEach(n=>{ n.onclick=()=>{ document.querySelectorAll(".nav-item").forEach(x=>x.classList.remove("active")); n.classList.add("active"); document.getElementById(n.dataset.scroll).scrollIntoView({behavior:"smooth",block:"start"}); sidebar.classList.remove("open"); }; });
+      <!-- ===== BIỂU ĐỒ ===== -->
+      <section id="secChart" class="col">
+        <div class="ch" style="padding:0 2px"><div><h3 style="font-size:16px">Biểu đồ theo thời gian</h3></div><div class="seg" style="margin:0;width:auto"><button data-rng="50" class="on">50 điểm</button><button data-rng="0">Tất cả</button><button data-rng="week">7 ngày</button></div></div>
+        <div class="chartgrid">
+          <div class="card"><div class="ch"><div><h3>Nhiệt độ theo thời gian</h3><div class="sub" id="tempDesc">SHT31</div></div><span class="tag">°C</span></div><canvas id="tempChart" height="120"></canvas></div>
+          <div class="card"><div class="ch"><div><h3>Phân bố nhiệt độ</h3><div class="sub">Trong / ngoài vùng</div></div></div><div class="donutwrap"><canvas id="zoneDonut" height="150"></canvas><div class="donutc"><div><b id="donutBig">0%</b><br><small>tối ưu</small></div></div></div><div class="legend" id="donutLegend"></div></div>
+        </div>
+        <div class="chartgrid2">
+          <div class="card"><div class="ch"><div><h3>Độ ẩm đất theo thời gian</h3><div class="sub" id="moistDesc">ON/OFF</div></div><span class="tag">%</span></div><canvas id="moistChart" height="120"></canvas></div>
+          <div class="card"><div class="ch"><div><h3>Số lần tưới theo giờ</h3><div class="sub">Tần suất kích hoạt van</div></div></div><canvas id="waterBar" height="120"></canvas></div>
+        </div>
+      </section>
 
-    // ================= DRAWER =================
-    const drawer = document.getElementById("drawer"), overlay = document.getElementById("overlay");
-    function openDrawer(o){ drawer.classList.toggle("open",o); overlay.classList.toggle("open",o); }
-    document.getElementById("gearBtn").onclick = ()=>openDrawer(true);
-    document.getElementById("navSettings").onclick = ()=>openDrawer(true);
-    overlay.onclick = ()=>openDrawer(false);
+      <!-- ===== NHẬT KÝ ===== -->
+      <section id="secLog" class="col">
+        <div class="card">
+          <div class="ch"><div><h3>Lịch sử sự kiện</h3><div class="sub">Nhật ký tưới & cảnh báo</div></div><span class="tag" id="clearLogBtn">Xoá nhật ký</span></div>
+          <table><thead><tr><th>Thời gian</th><th>Sự kiện</th><th>Chi tiết</th></tr></thead><tbody id="eventBody"><tr><td colspan="3" class="empty">Chưa có sự kiện</td></tr></tbody></table>
+        </div>
+      </section>
+    </div>
+    <div class="note">SPORO · giao diện AgriVision — dữ liệu thật từ hệ thống của bạn</div>
+  </div>
+</div>
 
-    // ================= HELPERS =================
-    function cssVar(n){ return getComputedStyle(root).getPropertyValue(n).trim(); }
-    function locale(){ return lang==="vi"?"vi-VN":"en-GB"; }
-    function fmtTime(iso){ return iso?new Date(iso).toLocaleTimeString(locale()):"—"; }
+<div class="locpop" id="locPop"><div class="sub2" style="margin:0 0 8px">Chọn địa điểm quan trắc</div><input class="inp" id="locInput" placeholder="Nhập tên thành phố…" style="margin:0"><div id="locRes" style="margin-top:8px;max-height:220px;overflow:auto"></div></div>
 
-    // ================= CHARTS =================
-    let tempChart, moistChart, zoneDonut, waterBar;
-    let chartRange = 50, lastData = null;
-    let cfg = { moistureOn:45, moistureOff:65, tempMin:25, tempMax:30, waterDuration:13 };
+<div class="ov" id="ov"></div>
+<aside class="drawer" id="drawer">
+  <h2>Cài đặt</h2>
+  <div class="trow"><span>Chế độ tối</span><label class="sw"><input type="checkbox" id="darkToggle"><span class="sl"></span></label></div>
+  <div class="trow"><span>Tự động cập nhật (5s)</span><label class="sw"><input type="checkbox" id="autoToggle" checked><span class="sl"></span></label></div>
+  <div class="trow"><span>Chế độ demo (dữ liệu giả)</span><label class="sw"><input type="checkbox" id="demoToggle"><span class="sl"></span></label></div>
 
-    function lineOpts(annotations,yScale){
-      const grid=cssVar("--grid"), muted=cssVar("--muted");
-      return { responsive:true, maintainAspectRatio:true, animation:{duration:400,easing:"easeOutCubic"},
-        plugins:{ legend:{display:false}, annotation:{annotations} },
-        scales:{ x:{ticks:{color:muted,maxTicksLimit:6,font:{size:11}},grid:{color:grid,drawTicks:false}},
-                 y:Object.assign({ticks:{color:muted,font:{size:11}},grid:{color:grid,drawTicks:false}},yScale||{}) } };
-    }
-    function buildCharts(){
-      const tempC=cssVar("--orange"), moistC=cssVar("--sky"), green=cssVar("--green"), red=cssVar("--red"), blue=cssVar("--blue"), muted=cssVar("--muted");
-      tempChart = new Chart(document.getElementById("tempChart"),{ type:"line",
-        data:{labels:[],datasets:[{data:[],borderColor:tempC,backgroundColor:"rgba(245,158,11,.10)",fill:true,tension:.4,pointRadius:0,borderWidth:2.5}]},
-        options:lineOpts({ zone:{type:"box",yMin:cfg.tempMin,yMax:cfg.tempMax,backgroundColor:"rgba(22,163,74,.10)",borderWidth:0} }) });
-      moistChart = new Chart(document.getElementById("moistChart"),{ type:"line",
-        data:{labels:[],datasets:[{data:[],borderColor:moistC,backgroundColor:"rgba(14,165,233,.10)",fill:true,tension:.4,pointRadius:0,borderWidth:2.5}]},
-        options:lineOpts({ on:{type:"line",yMin:cfg.moistureOn,yMax:cfg.moistureOn,borderColor:red,borderWidth:1.5,borderDash:[6,5],label:{display:true,content:"ON "+cfg.moistureOn+"%",position:"start",color:red,font:{size:11},backgroundColor:"transparent"}},
-                           off:{type:"line",yMin:cfg.moistureOff,yMax:cfg.moistureOff,borderColor:green,borderWidth:1.5,borderDash:[6,5],label:{display:true,content:"OFF "+cfg.moistureOff+"%",position:"start",color:green,font:{size:11},backgroundColor:"transparent"}} },{min:0,max:100}) });
-      zoneDonut = new Chart(document.getElementById("zoneDonut"),{ type:"doughnut",
-        data:{labels:[t("leg.inzone"),t("leg.hot"),t("leg.cold")],datasets:[{data:[0,0,1],backgroundColor:[green,cssVar("--orange"),blue],borderWidth:0}]},
-        options:{responsive:true,maintainAspectRatio:true,cutout:"72%",plugins:{legend:{display:false}}} });
-      waterBar = new Chart(document.getElementById("waterBar"),{ type:"bar",
-        data:{labels:[],datasets:[{data:[],backgroundColor:blue,borderRadius:6,maxBarThickness:26}]},
-        options:{responsive:true,maintainAspectRatio:true,animation:{duration:400},plugins:{legend:{display:false}},
-          scales:{x:{ticks:{color:muted,font:{size:10}},grid:{display:false}},y:{beginAtZero:true,ticks:{color:muted,precision:0,font:{size:11}},grid:{color:cssVar("--grid"),drawTicks:false}}}} });
-    }
-    function rebuildChartsTheme(){ [tempChart,moistChart,zoneDonut,waterBar].forEach(c=>c&&c.destroy()); buildCharts(); if(lastData) renderCharts(lastData); }
-    function slice(a){ return chartRange===0?a:a.slice(-chartRange); }
+  <div class="divh"></div>
+  <div class="sub2"><span>Tưới thông minh</span></div>
+  <div class="trow"><span>Hoãn tưới khi sắp mưa</span><label class="sw"><input type="checkbox" id="rainToggle"><span class="sl"></span></label></div>
+  <div class="field"><label>Ngưỡng xác suất mưa <b><span id="rainThV">70</span>%</b></label><input type="range" id="rainTh" min="30" max="100" step="1" value="70"></div>
+  <div class="sub2" style="margin-top:6px"><span>Lịch tưới theo giờ</span></div>
+  <div style="display:flex;gap:8px"><input class="inp" id="schedInput" type="time" style="margin:0"><button class="mini green" id="schedAdd">+ Thêm</button></div>
+  <div id="schedList" style="margin-top:8px"></div>
 
-    function renderCharts(d){
-      const h = slice(d.history);
-      const labels = h.map(x=>new Date(x.time).toLocaleTimeString(locale(),{hour:"2-digit",minute:"2-digit"}));
-      tempChart.data.labels=labels; tempChart.data.datasets[0].data=h.map(x=>x.temp);
-      tempChart.options.plugins.annotation.annotations.zone.yMin=cfg.tempMin;
-      tempChart.options.plugins.annotation.annotations.zone.yMax=cfg.tempMax; tempChart.update();
-      moistChart.data.labels=labels; moistChart.data.datasets[0].data=h.map(x=>x.moisture);
-      const ann=moistChart.options.plugins.annotation.annotations;
-      ann.on.yMin=ann.on.yMax=cfg.moistureOn; ann.on.label.content="ON "+cfg.moistureOn+"%";
-      ann.off.yMin=ann.off.yMax=cfg.moistureOff; ann.off.label.content="OFF "+cfg.moistureOff+"%"; moistChart.update();
-      let inz=0,hot=0,cold=0;
-      d.history.forEach(x=>{ if(x.temp>=cfg.tempMin&&x.temp<=cfg.tempMax) inz++; else if(x.temp>cfg.tempMax) hot++; else cold++; });
-      const tot=inz+hot+cold||1;
-      zoneDonut.data.labels=[t("leg.inzone"),t("leg.hot"),t("leg.cold")];
-      zoneDonut.data.datasets[0].data=[inz,hot,cold]; zoneDonut.update();
-      document.getElementById("donutBig").textContent=Math.round(inz/tot*100)+"%";
-      const green=cssVar("--green"),orange=cssVar("--orange"),blue=cssVar("--blue");
-      document.getElementById("donutLegend").innerHTML=
-        [[t("leg.inzone"),inz,green],[t("leg.hot"),hot,orange],[t("leg.cold"),cold,blue]]
-        .map(([n,v,c])=>`<div class="li"><span class="sw" style="background:${c}"></span>${n}<span class="val">${v}</span></div>`).join("");
-      const buckets=new Array(24).fill(0);
-      d.events.filter(e=>e.type==="Tưới").forEach(e=>buckets[new Date(e.time).getHours()]++);
-      const hours=[],vals=[];
-      for(let i=0;i<24;i++){ if(buckets[i]>0||i%3===0){ hours.push(String(i).padStart(2,"0")+"h"); vals.push(buckets[i]); } }
-      waterBar.data.labels=hours; waterBar.data.datasets[0].data=vals; waterBar.update();
-    }
+  <div class="divh"></div>
+  <div class="sub2"><span>Ngưỡng điều khiển</span></div>
+  <div class="field"><label>Bật tưới khi ẩm dưới <b><span id="v-on">45</span>%</b></label><input type="range" id="s-on" min="10" max="60" step="1" value="45"></div>
+  <div class="field"><label>Tắt tưới khi ẩm đạt <b><span id="v-off">65</span>%</b></label><input type="range" id="s-off" min="50" max="90" step="1" value="65"></div>
+  <div class="field"><label>Vùng nhiệt — cận dưới <b><span id="v-tmin">25</span>°C</b></label><input type="range" id="s-tmin" min="10" max="30" step="1" value="25"></div>
+  <div class="field"><label>Vùng nhiệt — cận trên <b><span id="v-tmax">30</span>°C</b></label><input type="range" id="s-tmax" min="28" max="45" step="1" value="30"></div>
+  <div class="field"><label>Thời lượng tưới <b><span id="v-dur">13</span>s</b></label><input type="range" id="s-dur" min="3" max="60" step="1" value="13"></div>
+  <button class="btn green" id="saveBtn" style="width:100%">Lưu & áp dụng</button>
 
-    // ================= RENDER =================
-    function setTrend(id,txt,cls){ const el=document.getElementById(id); el.textContent=txt; el.className="trend "+cls; }
-    const EV_KEY={ "Tưới":"ev.water","Tắt":"ev.stop","Cảnh báo":"ev.alert","Cấu hình":"ev.config" };
-    const EV_CLS={ "Tưới":"water","Tắt":"stop","Cảnh báo":"alert","Cấu hình":"config" };
+  <div class="divh"></div>
+  <div class="sub2"><span>Khu vực trồng</span><button class="mini green" id="addSecBtn">+ Thêm</button></div>
+  <div id="secEditor"></div>
 
-    function render(d){
-      lastData=d; cfg=d.config;
-      const H=d.history;
-      if(d.latest&&d.latest.temp!==null){
-        const tp=d.latest.temp, m=d.latest.moisture;
-        document.getElementById("tempVal").textContent=tp.toFixed(1);
-        document.getElementById("moistVal").textContent=Math.round(m);
-        if(H.length>=2){
-          const prev=H[Math.max(0,H.length-6)];
-          const dt=tp-prev.temp, dm=m-prev.moisture;
-          setTrend("tempTrend",(dt>=0?"▲ ":"▼ ")+Math.abs(dt).toFixed(1)+"°C", dt>0?"up":dt<0?"down":"flat");
-          setTrend("moistTrend",(dm>=0?"▲ ":"▼ ")+Math.abs(Math.round(dm))+"%", dm>0?"up":dm<0?"down":"flat");
-        }
-      }
-      const on=d.valveState==="ON";
-      document.getElementById("valveVal").textContent=on?t("valve.open"):t("valve.closed");
-      setTrend("valveTrend",on?t("trend.watering"):t("trend.waitWater"),on?"up":"flat");
-      document.getElementById("waterCount").textContent=d.stats.wateringToday;
-      setTrend("waterSub",d.stats.lastWateringTime?t("trend.lastAt")+fmtTime(d.stats.lastWateringTime):t("card.noWater"),"flat");
-      document.getElementById("zoneVal").textContent=d.stats.favorablePercent;
-      setTrend("zoneTrend", d.stats.favorablePercent>=70?t("trend.stable"):t("trend.watch"), d.stats.favorablePercent>=70?"up":"flat");
-      document.getElementById("sampleCount").textContent=H.length;
-      setTrend("sampleTrend",t("card.dataPoints"),"flat");
+  <div class="divh"></div>
+  <div class="sub2"><span>Đổi mật khẩu</span></div>
+  <div class="msg" id="pwMsg"></div>
+  <input class="inp" id="pwOld" type="password" placeholder="Mật khẩu hiện tại">
+  <input class="inp" id="pwNew" type="password" placeholder="Mật khẩu mới">
+  <input class="inp" id="pwConfirm" type="password" placeholder="Nhập lại mật khẩu mới">
+  <button class="btn" id="pwBtn" style="width:100%">Đổi mật khẩu</button>
+</aside>
 
-      const badge=document.getElementById("statusBadge");
-      badge.className="status-badge "+(on?"on":"idle");
-      document.getElementById("statusText").textContent=on?t("st.watering"):t("st.idle");
+<script>
+try{ if(window["chartjs-plugin-annotation"]) Chart.register(window["chartjs-plugin-annotation"]); }catch(e){}
+const $=id=>document.getElementById(id);
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const MON=["tháng 1","tháng 2","tháng 3","tháng 4","tháng 5","tháng 6","tháng 7","tháng 8","tháng 9","tháng 10","tháng 11","tháng 12"];
+let lastData=null,lastWx=null,cfg={moistureOn:45,moistureOff:65,tempMin:25,tempMax:30,waterDuration:13},chartRange=50,chartMode="live";
 
-      document.getElementById("valveBox").className="valve "+(on?"active-on":"active-off");
-      document.getElementById("valveState").textContent=on?t("valve.open"):t("valve.closed");
-      const warn=d.events.find(e=>e.type==="Cảnh báo");
-      const recentWarn=warn&&(Date.now()-new Date(warn.time).getTime()<60000);
-      document.getElementById("warnBox").className="valve "+(recentWarn?"active-on":"");
-      document.getElementById("warnState").textContent=recentWarn?t("warn.abnormal"):t("warn.normal");
+/* theme */
+const body=document.body, savedTheme=localStorage.getItem("sporo-theme")||"light";
+body.setAttribute("data-theme",savedTheme); $("darkToggle").checked=savedTheme==="dark";
+function setTheme(t){ body.setAttribute("data-theme",t); localStorage.setItem("sporo-theme",t); $("darkToggle").checked=t==="dark"; rebuildCharts(); }
+$("themeBtn").onclick=()=>setTheme(body.getAttribute("data-theme")==="dark"?"light":"dark");
+$("darkToggle").onchange=e=>setTheme(e.target.checked?"dark":"light");
 
-      document.getElementById("lg-on").textContent=cfg.moistureOn;
-      document.getElementById("lg-off").textContent=cfg.moistureOff;
-      document.getElementById("lg-dur").textContent=cfg.waterDuration;
-      document.getElementById("lg-tmin").textContent=cfg.tempMin;
-      document.getElementById("lg-tmax").textContent=cfg.tempMax;
-      document.getElementById("tempDesc").textContent=t("tempDescTpl").replace("{min}",cfg.tempMin).replace("{max}",cfg.tempMax);
-      document.getElementById("moistDesc").textContent=t("moistDescTpl").replace("{on}",cfg.moistureOn).replace("{off}",cfg.moistureOff);
+/* nav scroll */
+document.querySelectorAll("[data-go]").forEach(el=>el.onclick=()=>{ const t=$(el.dataset.go); if(t) t.scrollIntoView({behavior:"smooth",block:"start"});
+  document.querySelectorAll(".rail .rbtn").forEach(b=>b.classList.toggle("on",b.dataset.go===el.dataset.go));
+  document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("on",b.dataset.go===el.dataset.go)); });
 
-      const body=document.getElementById("eventBody");
-      if(!d.events.length){ body.innerHTML=`<tr><td colspan="3" class="empty">${t("empty.events")}</td></tr>`; }
-      else body.innerHTML=d.events.slice(0,12).map(e=>{
-        const label=t(EV_KEY[e.type]||"ev.config"), cls=EV_CLS[e.type]||"config";
-        return `<tr><td>${fmtTime(e.time)}</td><td><span class="pill ${cls}">${label}</span></td><td>${e.detail}</td></tr>`;
-      }).join("");
+/* drawer */
+function openDrawer(o){ $("drawer").classList.toggle("open",o); $("ov").classList.toggle("open",o); if(o) syncDrawer(); }
+$("gearBtn").onclick=()=>openDrawer(true); $("railSet").onclick=()=>openDrawer(true); $("ov").onclick=()=>openDrawer(false);
 
-      renderCharts(d);
-      syncDrawerFromConfig();
-    }
+/* location */
+let loc=JSON.parse(localStorage.getItem("sporo-loc")||"null")||{place:"Đà Lạt",lat:11.94,lon:108.44};
+function gmapUrl(){ return `https://www.google.com/maps?q=${loc.lat},${loc.lon}&z=12&hl=vi&gl=vn&output=embed`; }
+$("gmap").src=gmapUrl();
+function setLoc(o){ loc=o; localStorage.setItem("sporo-loc",JSON.stringify(loc)); $("gmap").src=gmapUrl(); loadWeather();
+  fetch("/api/config",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({weatherLat:loc.lat,weatherLon:loc.lon,weatherPlace:loc.place})}).catch(()=>{}); }
+const locPop=$("locPop");
+$("aiBtn").onclick=(e)=>{ e.stopPropagation(); const r=$("aiBtn").getBoundingClientRect(); locPop.style.left=Math.min(r.left,innerWidth-340)+"px"; locPop.style.top=(r.bottom+8)+"px"; locPop.classList.add("open"); $("locInput").value=""; $("locRes").innerHTML=""; $("locInput").focus(); };
+document.addEventListener("click",e=>{ if(!locPop.contains(e.target)&&e.target!==$("aiBtn")) locPop.classList.remove("open"); });
+let gt=null; $("locInput").oninput=()=>{ clearTimeout(gt); const q=$("locInput").value.trim(); if(q.length<2){$("locRes").innerHTML="";return;}
+  gt=setTimeout(async()=>{ try{ const r=await fetch(`/api/geocode?q=${encodeURIComponent(q)}`); const j=await r.json();
+    $("locRes").innerHTML=(j.results||[]).map((x,i)=>`<div class="locitem" data-i="${i}"><div class="nm">${esc(x.name)}</div><div class="s">${esc([x.admin1,x.country].filter(Boolean).join(", "))}</div></div>`).join("")||'<div class="locitem"><div class="s">Không tìm thấy</div></div>';
+    $("locRes").querySelectorAll(".locitem").forEach(el=>el.onclick=()=>{ if(el.dataset.i==null)return; const x=j.results[+el.dataset.i]; locPop.classList.remove("open"); setLoc({place:x.name,lat:x.lat,lon:x.lon}); });
+  }catch(e){} },320); };
+$("myLocBtn").onclick=()=>{ if(!navigator.geolocation) return; navigator.geolocation.getCurrentPosition(async p=>{ const {latitude:lat,longitude:lon}=p.coords; let place="Vị trí hiện tại"; try{const r=await fetch(`/api/revgeo?lat=${lat}&lon=${lon}`); if(r.ok){const j=await r.json(); if(j.name)place=j.name;}}catch(e){} setLoc({place,lat,lon}); },()=>alert("Không lấy được vị trí"),{enableHighAccuracy:true,timeout:8000}); };
 
-    // ================= FETCH =================
-    let timer=null;
-    async function refresh(){ try{ const r=await fetch("/api/data"); render(await r.json()); }catch(e){ document.getElementById("statusText").textContent=t("st.disconnected"); } }
-    function startAuto(){ timer=setInterval(refresh,5000); } function stopAuto(){ clearInterval(timer); }
-    document.getElementById("autoToggle").onchange=e=>{ e.target.checked?startAuto():stopAuto(); };
+/* sections */
+let sections=JSON.parse(localStorage.getItem("sporo-sections")||"null"); if(!sections||!sections.length) sections=[{id:Date.now(),name:"Khu A1",plant:"Cây giống",tmin:25,tmax:30,moist:60,note:""}];
+let activeSec=localStorage.getItem("sporo-active"); if(!activeSec||!sections.find(s=>String(s.id)===String(activeSec))) activeSec=String(sections[0].id);
+function saveSec(){ localStorage.setItem("sporo-sections",JSON.stringify(sections)); localStorage.setItem("sporo-active",activeSec); }
+function getActive(){ return sections.find(s=>String(s.id)===String(activeSec))||sections[0]; }
+function setActive(id){ activeSec=String(id); saveSec(); renderZones(); renderCam(); renderSecEditor(); }
+function renderZones(){
+  const fav=lastData?lastData.stats.favorablePercent:null;
+  const st=fav==null?null:fav>=70?"ok":fav>=40?"warn":"bad";
+  const col=st==="ok"?"var(--green)":st==="warn"?"var(--amber)":st==="bad"?"var(--terra)":"var(--faint)";
+  const lab=st==="ok"?"Khỏe mạnh":st==="warn"?"Cần chú ý":st==="bad"?"Cần xử lý":"—";
+  $("ovAll").className="pill "+(st==="warn"?"warn":st==="bad"?"bad":""); $("ovAll").textContent=fav!=null?lab+" · "+fav+"%":"—";
+  $("fieldTag").textContent=getActive().name; $("camSec").textContent=getActive().name;
+  $("zones").textContent=sections.length;
+  $("zoneList").innerHTML=sections.map(s=>{ const on=String(s.id)===String(activeSec);
+    return `<div class="zone" data-id="${s.id}" style="${on?'outline:2px solid '+col+';outline-offset:-2px':''}"><span class="zdot" style="background:${col}"></span>
+      <div><div class="nm">${esc(s.name)}</div><div class="sub">${esc(s.plant||"Cây giống")} · ${lab}</div></div>
+      <span class="zbadge" style="background:${col}22;color:${col}">${fav!=null?fav+"%":"—"}</span></div>`; }).join("");
+  $("zoneList").querySelectorAll(".zone").forEach(el=>el.onclick=()=>setActive(el.dataset.id));
+}
+function renderSecEditor(){
+  $("secEditor").innerHTML=sections.map(s=>{ const on=String(s.id)===String(activeSec);
+    return `<div class="seced" data-id="${s.id}">
+      <div class="r"><input class="inp sf" data-k="name" placeholder="Tên khu" value="${esc(s.name)}"></div>
+      <div class="r"><input class="inp sf" data-k="plant" placeholder="Tên cây" value="${esc(s.plant||"")}"></div>
+      <div class="r"><input class="inp sf" data-k="tmin" type="number" placeholder="Nhiệt thấp" value="${s.tmin!=null?s.tmin:""}"><input class="inp sf" data-k="tmax" type="number" placeholder="Nhiệt cao" value="${s.tmax!=null?s.tmax:""}"></div>
+      <div class="r"><input class="inp sf" data-k="moist" type="number" placeholder="Ẩm mục tiêu" value="${s.moist!=null?s.moist:""}"><input class="inp sf" data-k="note" placeholder="Ghi chú" value="${esc(s.note||"")}"></div>
+      <div class="r"><button class="mini ${on?"green":""} sact">${on?"Đang đo":"Chọn đo"}</button><button class="mini danger sdel">Xoá</button></div></div>`; }).join("");
+  $("secEditor").querySelectorAll(".seced").forEach(el=>{ const id=el.dataset.id,s=sections.find(x=>String(x.id)===String(id));
+    el.querySelectorAll(".sf").forEach(inp=>inp.oninput=e=>{ const k=inp.dataset.k; let v=e.target.value; if(k==="tmin"||k==="tmax"||k==="moist")v=(v===""?null:Number(v)); s[k]=v; saveSec(); if(k==="name"||k==="plant")renderZones(); });
+    el.querySelector(".sact").onclick=()=>setActive(id);
+    el.querySelector(".sdel").onclick=()=>{ if(sections.length<=1){alert("Cần giữ ít nhất 1 khu");return;} sections=sections.filter(x=>String(x.id)!==String(id)); if(String(activeSec)===String(id))activeSec=String(sections[0].id); saveSec(); renderZones(); renderSecEditor(); renderCam(); }; });
+}
+$("addSecBtn").onclick=()=>{ sections.push({id:Date.now(),name:"Khu mới "+(sections.length+1),plant:"Cây giống",tmin:25,tmax:30,moist:60,note:""}); saveSec(); renderZones(); renderSecEditor(); };
 
-    // ================= DEMO =================
-    let demoTimer=null, demoMoist=60, demoValve=false;
-    function demoStep(){
-      const temp = 27 + 3*Math.sin(Date.now()/40000) + (Math.random()-0.5)*0.8;
-      if (demoMoist < cfg.moistureOn) demoValve = true;
-      if (demoMoist >= cfg.moistureOff) demoValve = false;
-      demoMoist += demoValve ? (2.5+Math.random()*2) : -(1.3+Math.random()*1.4);
-      demoMoist = Math.max(18, Math.min(96, demoMoist));
-      fetch(`/api/update?temp=${temp.toFixed(1)}&moisture=${Math.round(demoMoist)}`).then(refresh).catch(()=>{});
-    }
-    document.getElementById("demoToggle").onchange=e=>{ if(e.target.checked){ demoStep(); demoTimer=setInterval(demoStep,1200); } else { clearInterval(demoTimer); } };
+/* camera */
+let camStream=null;
+function renderCam(){ $("camSec").textContent=getActive().name; if(camStream)return; const s=getActive();
+  if(s.img){$("camImg").src=s.img;$("camImg").style.display="block";$("camVideo").style.display="none";$("camEmpty").style.display="none";}
+  else{$("camImg").style.display="none";$("camVideo").style.display="none";$("camEmpty").style.display="block";} }
+$("camUp").onclick=()=>$("camFile").click();
+$("camFile").onchange=e=>{ const f=e.target.files[0]; if(!f)return; const rd=new FileReader(); rd.onload=()=>{ const img=new Image(); img.onload=()=>{ const mx=960,sc=Math.min(1,mx/Math.max(img.width,img.height)); const cv=document.createElement("canvas"); cv.width=img.width*sc; cv.height=img.height*sc; cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height); getActive().img=cv.toDataURL("image/jpeg",.82); saveSec(); renderCam(); }; img.src=rd.result; }; rd.readAsDataURL(f); e.target.value=""; };
+function stopCam(){ if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;} $("camVideo").style.display="none"; $("camStart").style.display="";$("camStop").style.display="none";$("camSnap").style.display="none"; renderCam(); }
+$("camStart").onclick=async()=>{ try{ camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}}); $("camVideo").srcObject=camStream; $("camVideo").style.display="block";$("camImg").style.display="none";$("camEmpty").style.display="none"; $("camStart").style.display="none";$("camStop").style.display="";$("camSnap").style.display=""; }catch(e){alert("Không truy cập được camera");} };
+$("camStop").onclick=stopCam;
+$("camSnap").onclick=()=>{ const cv=document.createElement("canvas"); cv.width=$("camVideo").videoWidth||640; cv.height=$("camVideo").videoHeight||480; cv.getContext("2d").drawImage($("camVideo"),0,0,cv.width,cv.height); getActive().img=cv.toDataURL("image/jpeg",.82); saveSec(); stopCam(); };
+$("camClear").onclick=()=>{ delete getActive().img; saveSec(); renderCam(); };
 
-    // ================= RANGE =================
-    document.querySelectorAll("#rangeSeg button").forEach(b=>{ b.onclick=()=>{ document.querySelectorAll("#rangeSeg button").forEach(x=>x.classList.remove("active")); b.classList.add("active"); chartRange=parseInt(b.dataset.range); if(lastData) renderCharts(lastData); }; });
+/* gauges */
+function arc(id,pct){ const a=$(id); if(!a)return; let L; try{L=a.getTotalLength();}catch(e){L=207;} a.style.strokeDasharray=L; a.style.strokeDashoffset=(L*(1-Math.max(0,Math.min(100,pct))/100)).toFixed(1); }
 
-    // ================= SLIDERS =================
-    ["on","off","tmin","tmax","dur"].forEach(id=>{ const s=document.getElementById("s-"+id); s.oninput=()=>document.getElementById("v-"+id).textContent=s.value; });
-    function syncDrawerFromConfig(){ const map={on:cfg.moistureOn,off:cfg.moistureOff,tmin:cfg.tempMin,tmax:cfg.tempMax,dur:cfg.waterDuration}; for(const k in map){ const s=document.getElementById("s-"+k); if(document.activeElement!==s){ s.value=map[k]; document.getElementById("v-"+k).textContent=map[k]; } } }
-    document.getElementById("saveBtn").onclick=async()=>{
-      const payload={ moistureOn:+document.getElementById("s-on").value, moistureOff:+document.getElementById("s-off").value, tempMin:+document.getElementById("s-tmin").value, tempMax:+document.getElementById("s-tmax").value, waterDuration:+document.getElementById("s-dur").value };
-      const btn=document.getElementById("saveBtn"); btn.textContent=t("dr.saving");
-      try{ const r=await fetch("/api/config",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)}); const j=await r.json(); cfg=j.config; rebuildChartsTheme(); await refresh(); btn.textContent=t("dr.saved"); setTimeout(()=>{ btn.textContent=t("dr.save"); openDrawer(false); },700); }
-      catch(e){ btn.textContent=t("dr.saveErr"); }
-    };
+/* charts */
+let tempChart,moistChart,zoneDonut,waterBar;
+function ggrad(hex){ return c=>{ const ch=c.chart,{ctx,chartArea}=ch; if(!chartArea)return "transparent"; const g=ctx.createLinearGradient(0,chartArea.top,0,chartArea.bottom); g.addColorStop(0,hex+"55");g.addColorStop(.6,hex+"1a");g.addColorStop(1,hex+"00"); return g; }; }
+function lineOpts(ann,ys){ const grid=cssv("--line"),mut=cssv("--muted"); return {responsive:true,maintainAspectRatio:true,animation:{duration:500},interaction:{intersect:false,mode:"index"},plugins:{legend:{display:false},annotation:{annotations:ann},tooltip:{backgroundColor:cssv("--card"),titleColor:cssv("--text"),bodyColor:cssv("--text"),borderColor:cssv("--line"),borderWidth:1,padding:9,cornerRadius:9,displayColors:false}},scales:{x:{ticks:{color:mut,maxTicksLimit:6,font:{size:10}},grid:{color:grid,drawTicks:false}},y:Object.assign({ticks:{color:mut,font:{size:10}},grid:{color:grid,drawTicks:false}},ys||{})}}; }
+function buildCharts(){ const tc=cssv("--amber"),mc=cssv("--blue"),gr=cssv("--green"),te=cssv("--terra"),bl=cssv("--blue"),mut=cssv("--muted");
+  tempChart=new Chart($("tempChart"),{type:"line",data:{labels:[],datasets:[{data:[],borderColor:tc,backgroundColor:ggrad(tc),fill:true,tension:.45,pointRadius:0,pointHoverRadius:4,borderWidth:2.5}]},options:lineOpts({zone:{type:"box",yMin:cfg.tempMin,yMax:cfg.tempMax,backgroundColor:"rgba(78,135,78,.10)",borderWidth:0}})});
+  moistChart=new Chart($("moistChart"),{type:"line",data:{labels:[],datasets:[{data:[],borderColor:mc,backgroundColor:ggrad(mc),fill:true,tension:.45,pointRadius:0,pointHoverRadius:4,borderWidth:2.5}]},options:lineOpts({on:{type:"line",yMin:cfg.moistureOn,yMax:cfg.moistureOn,borderColor:te,borderWidth:1.3,borderDash:[6,5]},off:{type:"line",yMin:cfg.moistureOff,yMax:cfg.moistureOff,borderColor:gr,borderWidth:1.3,borderDash:[6,5]}},{min:0,max:100})});
+  zoneDonut=new Chart($("zoneDonut"),{type:"doughnut",data:{labels:["Trong vùng","Hơi nóng","Hơi lạnh"],datasets:[{data:[0,0,1],backgroundColor:[gr,tc,bl],borderWidth:0,borderRadius:8,spacing:2}]},options:{responsive:true,maintainAspectRatio:true,cutout:"72%",plugins:{legend:{display:false}}}});
+  waterBar=new Chart($("waterBar"),{type:"bar",data:{labels:[],datasets:[{data:[],backgroundColor:gr,borderRadius:6,maxBarThickness:24}]},options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:mut,font:{size:10}},grid:{display:false}},y:{beginAtZero:true,ticks:{color:mut,precision:0,font:{size:10}},grid:{color:cssv("--line"),drawTicks:false}}}}});
+}
+function rebuildCharts(){ [tempChart,moistChart,zoneDonut,waterBar].forEach(c=>c&&c.destroy()); buildCharts(); if(lastData)renderCharts(lastData); if(chartMode==="week")loadWeek(); }
+function renderCharts(d){
+  if(chartMode==="live"){ const h=chartRange===0?d.history:d.history.slice(-chartRange);
+    const lb=h.map(x=>new Date(x.time).toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"}));
+    tempChart.data.labels=lb; tempChart.data.datasets[0].data=h.map(x=>x.temp);
+    tempChart.options.plugins.annotation.annotations.zone.yMin=cfg.tempMin; tempChart.options.plugins.annotation.annotations.zone.yMax=cfg.tempMax; tempChart.update();
+    moistChart.data.labels=lb; moistChart.data.datasets[0].data=h.map(x=>x.moisture);
+    const an=moistChart.options.plugins.annotation.annotations; an.on.yMin=an.on.yMax=cfg.moistureOn; an.off.yMin=an.off.yMax=cfg.moistureOff; moistChart.update(); }
+  let inz=0,hot=0,cold=0; d.history.forEach(x=>{ if(x.temp>=cfg.tempMin&&x.temp<=cfg.tempMax)inz++; else if(x.temp>cfg.tempMax)hot++; else cold++; });
+  const tot=inz+hot+cold||1; zoneDonut.data.datasets[0].data=[inz,hot,cold]; zoneDonut.update();
+  $("donutBig").textContent=Math.round(inz/tot*100)+"%";
+  $("donutLegend").innerHTML=[["Trong vùng",inz,cssv("--green")],["Hơi nóng",hot,cssv("--amber")],["Hơi lạnh",cold,cssv("--blue")]].map(([n,v,c])=>`<div class="li"><span class="sw" style="background:${c}"></span>${n}<span class="vv">${v}</span></div>`).join("");
+  const bk=new Array(24).fill(0); d.events.filter(e=>e.type==="Tưới").forEach(e=>bk[new Date(e.time).getHours()]++);
+  const hh=[],vv=[]; for(let i=0;i<24;i++){ if(bk[i]>0||i%3===0){hh.push(String(i).padStart(2,"0")+"h");vv.push(bk[i]);} }
+  waterBar.data.labels=hh; waterBar.data.datasets[0].data=vv; waterBar.update();
+}
+async function loadWeek(){ try{ const r=await fetch("/api/history?days=7"); const j=await r.json(); const p=j.points||[];
+  const lb=p.map(x=>new Date(x.t).toLocaleString("vi-VN",{day:"2-digit",month:"2-digit",hour:"2-digit"}));
+  tempChart.data.labels=lb; tempChart.data.datasets[0].data=p.map(x=>x.temp!=null?+(+x.temp).toFixed(1):null); tempChart.update();
+  moistChart.data.labels=lb; moistChart.data.datasets[0].data=p.map(x=>x.moisture!=null?Math.round(x.moisture):null); moistChart.update(); }catch(e){} }
+document.querySelectorAll("[data-rng]").forEach(b=>b.onclick=()=>{ document.querySelectorAll("[data-rng]").forEach(x=>x.classList.remove("on")); b.classList.add("on"); if(b.dataset.rng==="week"){chartMode="week";loadWeek();} else {chartMode="live";chartRange=parseInt(b.dataset.rng); if(lastData)renderCharts(lastData);} });
 
-    // ================= INIT =================
-    themeBtn.textContent=savedTheme==="dark"?"🌙":"☀️"; darkToggle.checked=savedTheme==="dark";
-    buildCharts(); applyLang(); refresh(); startAuto();
-  </script>
+/* event log */
+const EVL={"Tưới":["Tưới","water"],"Tắt":["Tắt","stop"],"Cảnh báo":["Cảnh báo","alert"],"Cấu hình":["Cấu hình","config"],"Hoãn":["Hoãn","config"]};
+function fmtT(iso){ return iso?new Date(iso).toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"}):"—"; }
+
+/* render */
+function initDate(){ const d=new Date(); $("dayNum").textContent=String(d.getDate()).padStart(2,"0"); $("dayMon").textContent=MON[d.getMonth()]; }
+initDate();
+function render(d){
+  lastData=d; cfg=d.config;
+  const temp=d.latest&&d.latest.temp!=null?d.latest.temp:null, moist=d.latest&&d.latest.moisture!=null?Math.round(d.latest.moisture):null, fav=d.stats.favorablePercent;
+  $("av").textContent=(d.user||"?").split(" ").map(x=>x[0]).slice(-2).join("").toUpperCase();
+  $("samples").textContent=d.history.length;
+  $("climT").textContent=temp!=null?temp.toFixed(1):"--"; arc("climArc",temp!=null?Math.min(100,temp/45*100):0);
+  $("effV").textContent=fav; arc("effArc",fav);
+  $("rMoist").textContent=moist!=null?moist:"--"; $("rFav").textContent=fav; $("rWater").textContent=d.stats.wateringToday;
+  $("ovMoist").textContent=moist!=null?moist:"--"; const low=moist!=null&&moist<cfg.moistureOn; $("ovSt").textContent=low?"Dưới ngưỡng":"Ổn định"; $("ovSt").className="st "+(low?"low":"ok");
+  const on=d.valveState==="ON"; $("valveBig").textContent=on?"Đang mở":"Đóng"; $("valvePill").textContent=on?"Đang mở":"Đóng"; $("valvePill").className="pill "+(on?"":"warn"); $("valveSub").textContent=on?"Van đang tưới":"Van đóng";
+  if(!lastWx&&d.daily){$("tHi").textContent=d.daily.tempMax.toFixed(1);$("tLo").textContent=d.daily.tempMin.toFixed(1);}
+  if(lastWx)renderTempCurve(lastWx);
+  $("tempDesc").textContent="SHT31 — vùng "+cfg.tempMin+"–"+cfg.tempMax+"°C"; $("moistDesc").textContent="ON "+cfg.moistureOn+"% / OFF "+cfg.moistureOff+"%";
+  let msg="Cây đang phát triển ổn định. Duy trì lịch tưới hiện tại.";
+  if(lastWx&&lastWx.precipProb!=null&&lastWx.precipProb>=(cfg.rainProbThreshold||70)) msg="Xác suất mưa "+Math.round(lastWx.precipProb)+"% trong vài giờ tới — nên hoãn tưới để tiết kiệm nước.";
+  else if(moist!=null&&moist<cfg.moistureOn) msg="Độ ẩm đất "+moist+"% dưới ngưỡng "+cfg.moistureOn+"% — hệ thống sẽ tưới để khôi phục cân bằng.";
+  else if(temp!=null&&temp>cfg.tempMax) msg="Nhiệt độ "+temp.toFixed(1)+"°C cao hơn vùng thuận lợi — tăng thông gió/che nắng.";
+  $("aiMsg").textContent=msg;
+  const sc=cfg.schedule||[]; const tasks=sc.length?sc.slice(0,3).map(tm=>({nm:"Tưới theo lịch "+tm,c:"Đã đặt"})):[{nm:"Tưới tự động theo độ ẩm",c:"Đang chạy"},{nm:"Giám sát nhiệt độ",c:"Đang chạy"}];
+  $("tasks").innerHTML=tasks.map(x=>`<div class="task"><div class="nm">${x.nm}</div><span class="pill">${x.c}</span></div>`).join("");
+  const body=$("eventBody");
+  if(!d.events.length) body.innerHTML='<tr><td colspan="3" class="empty">Chưa có sự kiện</td></tr>';
+  else body.innerHTML=d.events.slice(0,14).map(e=>{ const el=EVL[e.type]||["?","config"]; return `<tr><td>${fmtT(e.time)}</td><td><span class="evp ${el[1]}">${el[0]}</span></td><td>${esc(e.detail)}</td></tr>`; }).join("");
+  renderZones(); renderCam(); renderCharts(d); syncDrawer();
+}
+function renderWx(w){ $("wxTemp").textContent=w.temp!=null?Math.round(w.temp):"--"; $("wxCond").textContent=({0:"Trời quang",1:"Ít mây",2:"Có mây",3:"Nhiều mây",45:"Sương mù",51:"Mưa phùn",61:"Mưa nhẹ",63:"Mưa",65:"Mưa to",80:"Mưa rào",95:"Dông"}[w.code]||"Thời tiết");
+  $("wxWind").textContent=w.windSpeed!=null?w.windSpeed.toFixed(1):"--"; $("wxHum").textContent=w.humidity!=null?Math.round(w.humidity):"--"; $("wxRain").textContent=w.precipProb!=null?Math.round(w.precipProb):"--";
+  $("wxSunrise").textContent=w.sunrise?new Date(w.sunrise).toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"}):"--"; $("wxSunset").textContent=w.sunset?new Date(w.sunset).toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"}):"--";
+  if(w.tempMax!=null)$("tHi").textContent=Math.round(w.tempMax); if(w.tempMin!=null)$("tLo").textContent=Math.round(w.tempMin);
+  renderTempCurve(w); }
+
+/* Biểu đồ nhiệt độ theo giờ — phong cách Apple Weather */
+function renderTempCurve(w){
+  const host=$("tempCurve"); if(!host) return;
+  const H=w&&w.hourly;
+  if(!H||!Array.isArray(H.temp)||H.temp.length<2){ host.innerHTML='<svg viewBox="0 0 320 120"><text class="tc-empty" x="8" y="64">Đang tải dữ liệu nhiệt độ…</text></svg>'; return; }
+  const temps=H.temp.map(Number), times=H.time||[], n=temps.length;
+  const W=320,Ht=132,padT=24,padB=22,padL=6,padR=34;
+  let mn=Math.min(...temps),mx=Math.max(...temps); if(mx===mn){mx+=1;mn-=1;}
+  const pad=(mx-mn)*0.18; mn-=pad; mx+=pad; const rng=mx-mn;
+  const X=i=> padL+(W-padL-padR)*(i/(n-1));
+  const Y=t=> padT+(Ht-padT-padB)*(1-(t-mn)/rng);
+  const pts=temps.map((t,i)=>[X(i),Y(t)]);
+  // đường cong mượt (Catmull-Rom -> Bézier)
+  let dLine="M"+pts[0][0].toFixed(1)+" "+pts[0][1].toFixed(1);
+  for(let i=0;i<pts.length-1;i++){ const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||p2;
+    const c1x=p1[0]+(p2[0]-p0[0])/6,c1y=p1[1]+(p2[1]-p0[1])/6;
+    const c2x=p2[0]-(p3[0]-p1[0])/6,c2y=p2[1]-(p3[1]-p1[1])/6;
+    dLine+=" C"+c1x.toFixed(1)+" "+c1y.toFixed(1)+" "+c2x.toFixed(1)+" "+c2y.toFixed(1)+" "+p2[0].toFixed(1)+" "+p2[1].toFixed(1); }
+  const dFill=dLine+" L"+X(n-1).toFixed(1)+" "+(Ht-padB)+" L"+padL+" "+(Ht-padB)+" Z";
+  // điểm cao/thấp
+  let iHi=0,iLo=0; temps.forEach((t,i)=>{ if(t>temps[iHi])iHi=i; if(t<temps[iLo])iLo=i; });
+  // giờ hiện tại
+  const nowH=new Date().getHours(); let iNow=times.findIndex(t=>new Date(t).getHours()===nowH); if(iNow<0)iNow=Math.min(nowH,n-1);
+  const uid="tc"+Math.random().toString(36).slice(2,7);
+  const warm=cssv("--terra"),amber=cssv("--amber"),cool=cssv("--blue");
+  // vạch giờ 00/06/12/18
+  const hourTicks=[0,6,12,18].filter(h=>h<n).map(h=>`<text class="tc-axis" x="${X(h).toFixed(1)}" y="${Ht-6}" text-anchor="middle">${String(h).padStart(2,"0")}</text>`).join("");
+  // lưới nhiệt độ bên phải (3 mức)
+  let grid="";
+  for(let k=0;k<3;k++){ const t=mn+rng*(k+0.5)/3, y=Y(t).toFixed(1);
+    grid+=`<line class="tc-grid" x1="${padL}" y1="${y}" x2="${W-padR+2}" y2="${y}" stroke-width="1" opacity=".5"/>`+
+          `<text class="tc-axis" x="${W-padR+6}" y="${(+y+3).toFixed(1)}">${Math.round(t)}°</text>`; }
+  const pt=(i,lbl,cls)=>`<circle cx="${X(i).toFixed(1)}" cy="${Y(temps[i]).toFixed(1)}" r="3.4" fill="var(--card)" stroke="${warm}" stroke-width="2.2"/>`+
+    `<text class="tc-hl" x="${X(i).toFixed(1)}" y="${(Y(temps[i])-9).toFixed(1)}" text-anchor="middle">${lbl}</text>`+
+    `<text class="tc-val" x="${X(i).toFixed(1)}" y="${(Y(temps[i])+16).toFixed(1)}" text-anchor="middle">${Math.round(temps[i])}°</text>`;
+  host.innerHTML=`<svg viewBox="0 0 ${W} ${Ht}" preserveAspectRatio="none">
+    <defs>
+      <linearGradient id="${uid}f" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="${amber}" stop-opacity=".38"/>
+        <stop offset=".55" stop-color="${amber}" stop-opacity=".12"/>
+        <stop offset="1" stop-color="${amber}" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="${uid}s" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="${cool}"/>
+        <stop offset="1" stop-color="${warm}"/>
+      </linearGradient>
+    </defs>
+    ${grid}
+    <path d="${dFill}" fill="url(#${uid}f)"/>
+    <path d="${dLine}" fill="none" stroke="url(#${uid}s)" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="1 5" style="stroke-dashoffset:0"/>
+    <line class="tc-now" x1="${X(iNow).toFixed(1)}" y1="${padT-4}" x2="${X(iNow).toFixed(1)}" y2="${Ht-padB}" stroke-width="1"/>
+    <circle cx="${X(iNow).toFixed(1)}" cy="${Y(temps[iNow]).toFixed(1)}" r="4.5" fill="${warm}" stroke="var(--card)" stroke-width="2"/>
+    ${pt(iHi,"H")}
+    ${pt(iLo,"L")}
+    ${hourTicks}
+  </svg>`;
+}
+
+/* fetch */
+let timer=null;
+async function refresh(){ try{ const r=await fetch("/api/data"); if(r.status===401){location.href="/login.html";return;} render(await r.json()); }catch(e){} }
+async function loadWeather(){ try{ const r=await fetch(`/api/weather?lat=${loc.lat}&lon=${loc.lon}&place=${encodeURIComponent(loc.place)}`); if(r.ok){lastWx=await r.json();renderWx(lastWx);} }catch(e){} }
+
+/* actions */
+$("csvBtn").onclick=()=>window.location="/api/export.csv";
+$("logoutBtn").onclick=async()=>{ if(!confirm("Đăng xuất khỏi SPORO?"))return; try{await fetch("/api/logout",{method:"POST"});}catch(e){} location.href="/login.html"; };
+$("clearLogBtn").onclick=async()=>{ if(!confirm("Xoá toàn bộ nhật ký sự kiện?"))return; try{await fetch("/api/events/clear",{method:"POST"});await refresh();}catch(e){} };
+async function valve(action,btn){ const old=btn.textContent; btn.disabled=true; btn.textContent="Đã gửi…"; try{ const r=await fetch("/api/valve",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action})}); if(!r.ok)throw 0; await refresh(); }catch(e){ alert("Chưa gửi được lệnh van. Kiểm tra kết nối / server."); } btn.disabled=false; btn.textContent=old; }
+$("waterNow").onclick=e=>valve("on",e.currentTarget); $("waterStop").onclick=e=>valve("off",e.currentTarget);
+function startAuto(){timer=setInterval(refresh,5000);} function stopAuto(){clearInterval(timer);}
+$("autoToggle").onchange=e=>e.target.checked?startAuto():stopAuto();
+
+/* demo */
+let demoTimer=null,dm=60,dv=false;
+function demoStep(){ let t=28.5+3.5*Math.sin(Date.now()/40000)+(Math.random()-.5)*1.2; if(Math.random()<.12)t+=6+Math.random()*4; t=Math.max(20,Math.min(42,t)); if(dm<cfg.moistureOn)dv=true; if(dm>=cfg.moistureOff)dv=false; dm+=dv?(2.5+Math.random()*2):-(1.3+Math.random()*1.4); dm=Math.max(18,Math.min(96,dm)); fetch(`/api/update?temp=${t.toFixed(1)}&moisture=${Math.round(dm)}`).then(refresh).catch(()=>{}); }
+$("demoToggle").onchange=e=>{ if(e.target.checked){demoStep();demoTimer=setInterval(demoStep,1200);} else clearInterval(demoTimer); };
+
+/* drawer settings */
+["on","off","tmin","tmax","dur"].forEach(id=>$("s-"+id).oninput=()=>$("v-"+id).textContent=$("s-"+id).value);
+$("rainTh").oninput=e=>$("rainThV").textContent=e.target.value;
+let schedule=[];
+function renderSched(){ $("schedList").innerHTML=schedule.length?schedule.map((tm,i)=>`<span class="schedchip">${tm}<span class="x" data-i="${i}">×</span></span>`).join(""):'<span style="font-size:12px;color:var(--faint)">—</span>'; $("schedList").querySelectorAll(".x").forEach(el=>el.onclick=()=>{schedule.splice(+el.dataset.i,1);renderSched();}); }
+$("schedAdd").onclick=()=>{ const v=$("schedInput").value; if(/^\d{2}:\d{2}$/.test(v)&&!schedule.includes(v)){schedule.push(v);schedule.sort();renderSched();} };
+function syncDrawer(){ const mp={on:cfg.moistureOn,off:cfg.moistureOff,tmin:cfg.tempMin,tmax:cfg.tempMax,dur:cfg.waterDuration};
+  for(const k in mp){ const s=$("s-"+k); if(document.activeElement!==s){s.value=mp[k];$("v-"+k).textContent=mp[k];} }
+  $("rainToggle").checked=!!cfg.rainDelay; const rt=$("rainTh"); if(document.activeElement!==rt){rt.value=cfg.rainProbThreshold!=null?cfg.rainProbThreshold:70;$("rainThV").textContent=rt.value;}
+  schedule=Array.isArray(cfg.schedule)?cfg.schedule.slice():[]; renderSched(); renderSecEditor(); }
+$("saveBtn").onclick=async()=>{ const p={moistureOn:+$("s-on").value,moistureOff:+$("s-off").value,tempMin:+$("s-tmin").value,tempMax:+$("s-tmax").value,waterDuration:+$("s-dur").value,rainDelay:$("rainToggle").checked,rainProbThreshold:+$("rainTh").value,schedule:schedule.slice()};
+  const b=$("saveBtn"); b.textContent="Đang lưu…"; try{ const r=await fetch("/api/config",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(p)}); const j=await r.json(); cfg=j.config; rebuildCharts(); await refresh(); syncDrawer(); b.textContent="Đã lưu"; setTimeout(()=>b.textContent="Lưu & áp dụng",900); }catch(e){ b.textContent="Lỗi — thử lại"; } };
+$("pwBtn").onclick=async()=>{ const m=$("pwMsg"),o=$("pwOld").value,n=$("pwNew").value,c=$("pwConfirm").value; m.className="msg"; if(n.length<6){m.textContent="Mật khẩu mới tối thiểu 6 ký tự";m.className="msg err show";return;} if(n!==c){m.textContent="Nhập lại không khớp";m.className="msg err show";return;}
+  try{ const r=await fetch("/api/change-password",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({oldPass:o,newPass:n})}); const j=await r.json(); if(j.ok){m.textContent="Đã đổi mật khẩu";m.className="msg ok show";$("pwOld").value=$("pwNew").value=$("pwConfirm").value="";} else {m.textContent=j.error||"Lỗi";m.className="msg err show";} }catch(e){m.textContent="Lỗi kết nối";m.className="msg err show";} };
+
+/* init */
+buildCharts(); renderZones(); renderCam(); refresh(); startAuto(); loadWeather(); setInterval(loadWeather,600000);
+</script>
 </body>
 </html>
