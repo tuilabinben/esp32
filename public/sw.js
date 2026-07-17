@@ -1,6 +1,6 @@
 // SPORO service worker — cache vỏ ứng dụng, luôn lấy dữ liệu API mới
-const CACHE = "sporo-v1";
-const ASSETS = ["/", "/icon-192.png", "/icon-512.png", "/manifest.webmanifest"];
+const CACHE = "sporo-v3";
+const ASSETS = ["/icon-192.png", "/icon-512.png", "/manifest.webmanifest"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
@@ -18,7 +18,7 @@ self.addEventListener("fetch", e => {
   if (req.method !== "GET") return;
   const url = new URL(req.url);
   // Không cache API và login — luôn cần dữ liệu/tài khoản mới nhất
-  if (url.pathname.startsWith("/api/") || url.pathname.endsWith(".html")) return;
+  if (url.pathname.startsWith("/api/") || url.pathname.endsWith(".html") || req.mode === "navigate" || url.pathname === "/") return; // trang HTML luôn lấy bản mới nhất
   e.respondWith(
     fetch(req).then(res => {
       const cp = res.clone();
