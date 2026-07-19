@@ -56,6 +56,75 @@
 [hidden]{display:none!important}
 html{scroll-behavior:smooth}
 body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:16px;line-height:1.55;min-height:100vh;transition:color .4s}
+/* ---------- Cỡ chữ 5 nấc kiểu Apple: nhân theo hệ số --ts, biểu đồ giữ nguyên ---------- */
+:root{--ts:1}
+body:not([data-ts="1"]){font-size:calc(16px*var(--ts))}
+body:not([data-ts="1"]) .greet h1{font-size:calc(clamp(28px,6vw,35px)*var(--ts))}
+body:not([data-ts="1"]) .greet .gdate{font-size:calc(15px*var(--ts))}
+body:not([data-ts="1"]) .card h3{font-size:calc(17px*var(--ts))}
+body:not([data-ts="1"]) .card .sub{font-size:calc(13.5px*var(--ts))}
+body:not([data-ts="1"]) .hs-sub{font-size:calc(14.5px*var(--ts))}
+body:not([data-ts="1"]) .hs-word{font-size:calc(clamp(24px,5vw,30px)*var(--ts))}
+body:not([data-ts="1"]) .hs-num .k{font-size:calc(14px*var(--ts))}
+body:not([data-ts="1"]) .wt-state{font-size:calc(clamp(24px,5vw,28px)*var(--ts))}
+body:not([data-ts="1"]) .adv-ans{font-size:calc(clamp(23px,5vw,27px)*var(--ts))}
+body:not([data-ts="1"]) .adv-reason{font-size:calc(15.5px*var(--ts))}
+body:not([data-ts="1"]) .adv-tip,body:not([data-ts="1"]) .rainsum,body:not([data-ts="1"]) .notice{font-size:calc(14px*var(--ts))}
+body:not([data-ts="1"]) .helptext,body:not([data-ts="1"]) .badge{font-size:calc(13.5px*var(--ts))}
+body:not([data-ts="1"]) .note-item{font-size:calc(15px*var(--ts))}
+body:not([data-ts="1"]) .ck-text{font-size:calc(15.5px*var(--ts))}
+body:not([data-ts="1"]) .ev-body .et{font-size:calc(15px*var(--ts))}
+body:not([data-ts="1"]) .ev-body .tm{font-size:calc(13px*var(--ts))}
+body:not([data-ts="1"]) .wt-meta b{font-size:calc(19px*var(--ts))}
+body:not([data-ts="1"]) .wt-meta span{font-size:calc(12.5px*var(--ts))}
+body:not([data-ts="1"]) .fc-row{font-size:calc(15.5px*var(--ts))}
+body:not([data-ts="1"]) .tile .k,body:not([data-ts="1"]) .tile .d{font-size:calc(13px*var(--ts))}
+body:not([data-ts="1"]) .tile .v{font-size:calc(28px*var(--ts))}
+body:not([data-ts="1"]) .wxn-extra{font-size:calc(14px*var(--ts))}
+body:not([data-ts="1"]) .srow .lab,body:not([data-ts="1"]) .scol .lab{font-size:calc(16px*var(--ts))}
+body:not([data-ts="1"]) .srow .lab .d,body:not([data-ts="1"]) .scol .lab .d{font-size:calc(13px*var(--ts))}
+body:not([data-ts="1"]) .btn{font-size:calc(15.5px*var(--ts))}
+body:not([data-ts="1"]) .mini{font-size:calc(14.5px*var(--ts))}
+body:not([data-ts="1"]) .linkrow{font-size:calc(15px*var(--ts))}
+body:not([data-ts="1"]) .btn-big{font-size:calc(18.5px*var(--ts))}
+body:not([data-ts="1"]) .toptabs button{font-size:calc(15px*var(--ts))}
+body:not([data-ts="1"]) .tabbar button{font-size:calc(11.5px*var(--ts))}
+body:not([data-ts="1"]) .zchip{font-size:calc(15px*var(--ts))}
+body:not([data-ts="1"]) .inp,body:not([data-ts="1"]) input,body:not([data-ts="1"]) select{font-size:calc(16px*var(--ts))}
+body:not([data-ts="1"]) .timebtn{font-size:calc(17px*var(--ts))}
+body:not([data-ts="1"]) .locitem .nm{font-size:calc(15.5px*var(--ts))}
+body:not([data-ts="1"]) .locitem .s{font-size:calc(13px*var(--ts))}
+body:not([data-ts="1"]) .gt{font-size:calc(13.5px*var(--ts))}
+body:not([data-ts="1"]) .histhead h2{font-size:calc(24px*var(--ts))}
+body:not([data-ts="1"]) .hs-num .v{font-size:calc(clamp(34px,7vw,44px)*var(--ts))}
+body:not([data-ts="1"]) .wxnow .t{font-size:calc(clamp(42px,7vw,50px)*var(--ts))}
+/* hàng chọn cỡ chữ kiểu Apple: A nhỏ — thanh trượt có vạch nấc + nhãn theo con trượt — A lớn */
+@property --ts{syntax:"<number>";inherits:true;initial-value:1}
+/* Đổi cỡ chữ áp dụng tức thì — một lần dàn trang duy nhất, không tween, không mờ */
+.ts-row{display:flex;align-items:flex-start;gap:14px;margin-top:6px}
+.ts-row .ts-a{font-weight:800;color:var(--muted);flex:none;line-height:34px}
+.ts-row .ts-a.s{font-size:14px}
+.ts-row .ts-a.l{font-size:26px}
+.ts-wrap{position:relative;flex:1;padding-bottom:26px}
+.ts-wrap input{width:100%;position:relative;z-index:2}
+/* ẩn núm gốc — núm tuỳ chỉnh bên dưới sẽ LƯỚT giữa các nấc bằng spring */
+#tsSlider::-webkit-slider-thumb{opacity:0}
+#tsSlider::-moz-range-thumb{opacity:0}
+@property --fill{syntax:"<percentage>";inherits:false;initial-value:0%}
+#tsSlider{transition:--fill .3s var(--spring)}     /* vệt xanh trên rãnh cũng lướt theo */
+/* núm & nhãn di chuyển bằng transform (GPU) — mượt trọn 120Hz, không đụng layout */
+.ts-thumb{--tx:0px;position:absolute;left:15px;top:17px;width:30px;height:30px;border-radius:50%;z-index:1;pointer-events:none;
+  background:#fff;border:1px solid rgba(0,0,0,.06);box-shadow:0 2px 8px rgba(0,0,0,.28);
+  transform:translate3d(var(--tx),-50%,0) translateX(-50%);
+  will-change:transform;
+  transition:transform .38s cubic-bezier(.32,1.3,.4,1)}
+.ts-wrap input:active~.ts-thumb{transform:translate3d(var(--tx),-50%,0) translateX(-50%) scale(1.14)}
+.ts-ticks{position:absolute;left:15px;right:15px;top:30px;pointer-events:none;display:flex;justify-content:space-between}
+.ts-ticks i{width:3.5px;height:3.5px;border-radius:50%;background:var(--faint);opacity:.55}
+.ts-lab{--tx:0px;position:absolute;top:40px;left:15px;font-size:13px;font-weight:700;color:var(--muted);white-space:nowrap;
+  transform:translate3d(var(--tx),0,0) translateX(-50%);
+  will-change:transform;
+  transition:transform .38s cubic-bezier(.32,1.3,.4,1)}
 /* ---------- Phông nền Liquid Glass: bầu trời gradient + mảng màu + hạt mịn ---------- */
 .scene{position:fixed;inset:0;z-index:-1;overflow:hidden;transition:background .5s;
   background:linear-gradient(180deg,#F2F5EF 0%,#ECF0EA 52%,#E7EBE4 100%)}
@@ -105,16 +174,23 @@ svg.ic{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;str
   box-shadow:0 10px 34px rgba(10,20,14,.22),var(--bar-hi)}
 .toptabs::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:999px;background:var(--bar-bg);
   -webkit-backdrop-filter:var(--bar-filter);backdrop-filter:var(--bar-filter)}
-.toptabs button{padding:9px 22px;border-radius:999px;font-size:15px;font-weight:600;color:var(--text);opacity:.75;
+.toptabs button{position:relative;z-index:1;padding:9px 22px;border-radius:999px;font-size:15px;font-weight:600;color:var(--text);opacity:.75;
   transform:translateZ(0);
-  transition:background-color .3s var(--spring),color .3s,opacity .3s,box-shadow .3s}
+  transition:color .25s ease,opacity .25s ease}
 .toptabs button.on{opacity:1}
+/* viên xanh TRƯỢT giữa các tab — kiểu segmented control của Apple */
+.tab-ind{position:absolute;left:0;top:4px;bottom:4px;width:90px;border-radius:999px;z-index:0;opacity:0;
+  background:var(--green);box-shadow:0 4px 14px color-mix(in srgb,var(--green) 40%,transparent);
+  will-change:transform,width;
+  /* lướt nhanh có độ nảy nhẹ cuối hành trình — sinh động nhưng không gắt */
+  transition:transform .32s cubic-bezier(.3,1.16,.35,1),width .32s cubic-bezier(.3,1.16,.35,1),opacity .2s}
+.tab-ind.ready{opacity:1}
 /* diệt khung focus vuông của trình duyệt trên các cụm nút bo tròn — thay bằng vòng sáng ôm theo bo góc */
 .toptabs button,.tabbar button,.seg button,.zchip,.iconbtn{
   outline:none!important;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent}
 .toptabs button:focus-visible,.tabbar button:focus-visible,.seg button:focus-visible,.zchip:focus-visible,.iconbtn:focus-visible{
   box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 60%,transparent)}
-.toptabs button.on{background:var(--green);color:#fff;box-shadow:0 4px 14px color-mix(in srgb,var(--green) 40%,transparent)}
+.toptabs button.on{color:#fff}
 [data-theme="dark"] .toptabs button.on{color:#0A0C0A}
 .toptabs button:not(.on):hover{opacity:1}
 @media(min-width:760px){.toptabs{display:flex}}
@@ -158,6 +234,7 @@ svg.ic{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;str
   padding:20px;box-shadow:var(--shadow),var(--glass-hi);
   -webkit-backdrop-filter:blur(var(--blur)) saturate(var(--sat));backdrop-filter:blur(var(--blur)) saturate(var(--sat));
   display:flex;flex-direction:column;
+  transform:translateZ(0);   /* mỗi thẻ một lớp GPU riêng → cuộn trang composite thay vì vẽ lại */
   transition:transform .3s var(--ease),box-shadow .3s var(--ease)}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
   .card,.setcard,.tile,.locpop{background:var(--card-solid)!important}}
@@ -171,7 +248,7 @@ svg.ic{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;str
 .tabsec .grid>*:nth-child(3){animation-delay:.12s}.tabsec .grid>*:nth-child(4){animation-delay:.17s}
 .tabsec .grid>*:nth-child(5){animation-delay:.22s}.tabsec .grid>*:nth-child(6){animation-delay:.27s}
 .tabsec .grid>*:nth-child(7){animation-delay:.32s}.tabsec .grid>*:nth-child(8){animation-delay:.37s}
-@keyframes cardin{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes cardin{from{opacity:0;transform:translate3d(0,14px,0) scale(.985)}to{opacity:1;transform:translate3d(0,0,0)}}
 
 /* nhãn trạng thái bằng CHỮ — luôn kèm màu */
 .badge{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;
@@ -302,13 +379,15 @@ svg.ic{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;str
 .btn .ic{width:19px;height:19px}
 
 /* ---------- TRANG THỜI TIẾT ---------- */
-.wxbig{text-align:center;padding:6px 0 2px}
+.wxbig{text-align:center;padding:6px 0 2px;flex:1;display:flex;flex-direction:column;justify-content:center}
 .wxbig .place{font-size:19px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px}
 .wxbig .bigt{font-size:clamp(64px,16vw,84px);font-weight:300;letter-spacing:-.04em;font-variant-numeric:tabular-nums;line-height:1.05}
 .wxbig .cond{font-size:17px;color:var(--muted);font-weight:600}
 .wxbig .hilo{font-size:15px;color:var(--muted);margin-top:4px}
 .wxbig .hilo b{color:var(--text)}
-.wxactions{display:flex;gap:10px;margin-top:16px}
+.wxactions{display:flex;flex-wrap:wrap;gap:10px;margin-top:auto;padding-top:18px}
+.wxactions .btn{flex:1 1 150px;min-width:0;white-space:nowrap;padding:0 12px}
+.wxactions .btn .ic{flex:none}
 .curve{width:100%;min-height:180px;flex:1;display:flex;align-items:center}
 .curve svg{width:100%;height:auto;display:block}
 .tc-axis{font-size:11px;fill:var(--faint);font-family:var(--font)}
@@ -347,6 +426,7 @@ svg.ic{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;str
 .tile{background:var(--glass);border:1px solid var(--glass-brd);border-radius:20px;padding:15px 16px;
   box-shadow:var(--shadow),var(--glass-hi);
   -webkit-backdrop-filter:blur(var(--blur)) saturate(var(--sat));backdrop-filter:blur(var(--blur)) saturate(var(--sat));
+  transform:translateZ(0);
   transition:transform .3s var(--ease)}
 @media(hover:hover){.tile:hover{transform:translateY(-2px)}}
 .tile{display:flex;flex-direction:column;align-items:center;text-align:center;justify-content:center;gap:2px;min-height:118px}
@@ -365,11 +445,12 @@ svg.ic{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;str
 /* ---------- LỊCH SỬ ---------- */
 .histhead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:4px 2px 14px}
 .histhead h2{font-size:24px;font-weight:800;letter-spacing:-.03em}
-.chartbox{height:230px;position:relative}
+.chartbox{height:230px;position:relative;overflow:hidden}
 /* khung cố định cho danh sách dài — cuộn bên trong, không kéo giãn thẻ */
 .histfix{height:580px}
 @media(max-width:759px){.histfix{height:480px}}
-#evList,#logList{flex:1;min-height:0;overflow-y:auto;padding-right:6px;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+#evList,#logList{flex:1;min-height:0;overflow-y:auto;padding-right:6px;scrollbar-width:thin;scrollbar-color:var(--line) transparent;
+  -webkit-overflow-scrolling:touch;overscroll-behavior:contain}
 #evList::-webkit-scrollbar,#logList::-webkit-scrollbar{width:5px}
 #evList::-webkit-scrollbar-thumb,#logList::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
 #evList::-webkit-scrollbar-track,#logList::-webkit-scrollbar-track{background:transparent}
@@ -448,9 +529,11 @@ input[type=range]::-moz-range-thumb{width:30px;height:30px;border-radius:50%;bac
 .tp-sep{width:16px;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:var(--muted)}
 .tp-btns{display:flex;gap:10px}
 .chiprow{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.schedchip{display:inline-flex;align-items:center;gap:7px;background:var(--green-tint);color:var(--green);font-weight:800;font-variant-numeric:tabular-nums;
-  padding:9px 8px 9px 15px;border-radius:999px;font-size:15px}
-.schedchip button{width:26px;height:26px;border-radius:50%;font-size:16px;color:var(--green);display:flex;align-items:center;justify-content:center}
+.schedchip{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:40px;
+  background:var(--green-tint);color:var(--green);font-weight:800;font-variant-numeric:tabular-nums;
+  padding:0 8px 0 16px;border-radius:999px;font-size:15.5px;line-height:1}
+.schedchip button{width:26px;height:26px;border-radius:50%;font-size:15px;line-height:1;color:var(--green);
+  display:flex;align-items:center;justify-content:center;padding:0;padding-bottom:2px}
 .schedchip button:hover{background:color-mix(in srgb,var(--green) 18%,transparent)}
 .zoneedit{border:1.5px solid var(--line);border-radius:16px;padding:14px;margin-top:12px}
 .zoneedit .r{display:flex;gap:9px;margin-top:9px}
@@ -497,9 +580,12 @@ details.adv .advbody{padding:2px 18px 16px}
 @keyframes tin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .toast .tdot{width:9px;height:9px;border-radius:50%;flex:none}
 
-/* chuyển trang mượt */
+/* chuyển trang mượt — lần ĐẦU vào tab: thẻ hiện lần lượt; các lần SAU: fade nhanh gọn (nhẹ máy) */
 .tabsec{animation:secin .3s var(--ease)}
-@keyframes secin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes secin{from{opacity:0;transform:translate3d(0,8px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+.tabquick{animation:secquick .2s ease-out}
+@keyframes secquick{from{opacity:0;transform:translate3d(0,4px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+.tabquick .grid>*{animation:none}   /* không chạy lại stagger từng thẻ khi quay lại tab cũ */
 .foot{color:var(--faint);font-size:12.5px;text-align:center;padding:26px 0 8px}
 </style>
 </head>
@@ -509,6 +595,7 @@ details.adv .advbody{padding:2px 18px 16px}
 <header class="top">
   <div class="brand"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3c-4 4-4 10 0 14 4-4 4-10 0-14z"/><path d="M12 21v-8"/></svg><b>SPORO</b></div>
   <nav class="toptabs" id="topTabs" aria-label="Chuyển trang">
+    <span class="tab-ind" id="tabInd" aria-hidden="true"></span>
     <button data-go="secHome" class="on" data-i18n="t.home">Trang chính</button>
     <button data-go="secWx" data-i18n="t.weather">Thời tiết</button>
     <button data-go="secHist" data-i18n="t.history">Lịch sử</button>
@@ -561,6 +648,7 @@ details.adv .advbody{padding:2px 18px 16px}
       <div class="wt-live" id="wtLive"><span class="pulse"></span><span id="wtLiveT">Đang tưới…</span></div>
       <button class="btn-big" id="waterBtn" disabled><svg class="ic" viewBox="0 0 24 24"><path d="M12 3c4 5 6 8 6 11a6 6 0 01-12 0c0-3 2-6 6-11z"/></svg><span data-i18n="w.now">Tưới ngay</span></button>
       <div class="notice blue" id="rainHold" hidden><svg class="ic" viewBox="0 0 24 24"><path d="M6 15a4 4 0 010-8 5 5 0 019.6-1A4 4 0 0118 15z"/><path d="M8 18l-1 2M12 18l-1 2M16 18l-1 2"/></svg><span id="rainHoldT"></span></div>
+      <div class="notice amber" id="dryPred" hidden><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg><span id="dryPredT"></span></div>
       <div class="wt-meta">
         <div><b id="mWaterN">0</b><span data-i18n="w.today">lần hôm nay</span></div>
         <div><b id="mWaterLast">—</b><span data-i18n="w.last">gần nhất</span></div>
@@ -692,7 +780,7 @@ details.adv .advbody{padding:2px 18px 16px}
       <div class="chartbox" style="height:190px"><canvas id="wChart"></canvas></div>
     </div>
     <div class="card c7 histfix">
-      <div class="chead"><div><h3 data-i18n="g.events">Hệ thống đã làm gì</h3><div class="sub" data-i18n="g.eventsSub">Tưới, tắt van và cảnh báo gần đây</div></div><button class="textbtn" id="evClear" data-i18n="g.clear">Xoá</button></div>
+      <div class="chead"><div><h3 data-i18n="g.events">Nhật ký hoạt động</h3><div class="sub" data-i18n="g.eventsSub">Lịch sử tưới, đóng mở van và cảnh báo</div></div><button class="textbtn" id="evClear" data-i18n="g.clear">Xoá</button></div>
       <div id="evList"></div>
     </div>
     <div class="card c5 histfix">
@@ -718,15 +806,39 @@ details.adv .advbody{padding:2px 18px 16px}
         <div class="seg" style="width:210px" id="langSeg"><button data-l="vi" class="on">Tiếng Việt</button><button data-l="en">English</button></div></div>
       <div class="srow"><div class="lab" data-i18n="s.dark">Giao diện tối</div>
         <label class="sw"><input type="checkbox" id="darkToggle"><span class="sl"></span></label></div>
+      <div class="scol">
+        <div class="lab"><span data-i18n="s.big">Cỡ chữ</span></div>
+        <div class="ts-row">
+          <span class="ts-a s">A</span>
+          <div class="ts-wrap">
+            <input type="range" id="tsSlider" min="0" max="4" step="1" value="1" aria-label="Cỡ chữ">
+            <div class="ts-thumb" id="tsThumb"></div>
+            <div class="ts-ticks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+            <div class="ts-lab" id="tsVal">Vừa</div>
+          </div>
+          <span class="ts-a l">A</span>
+        </div>
+      </div>
       <div class="srow"><div class="lab"><span data-i18n="s.demo">Chế độ dùng thử</span><div class="d" data-i18n="s.demoSub">Tự tạo số liệu giả để xem thử, không cần thiết bị</div></div>
         <label class="sw"><input type="checkbox" id="demoToggle"><span class="sl"></span></label></div>
     </div>
   </div>
 
   <div class="setgroup">
-    <div class="gt" data-i18n="s.auto">Tưới tự động</div>
+    <div class="gt" data-i18n="s.auto">Khu vườn &amp; tưới tự động</div>
     <div class="setcard">
-      <div class="srow"><div class="lab"><span data-i18n="s.zoneFor">Áp dụng cho khu</span></div><button class="mini" id="threshZone">—</button></div>
+      <div class="scol">
+        <div class="lab"><span data-i18n="s.zonesSub2">Chọn khu để chỉnh — mỗi khu có cây và ngưỡng tưới riêng</span></div>
+        <div class="chiprow" id="setZones" style="margin-top:4px"></div>
+      </div>
+      <div class="scol">
+        <div style="display:flex;gap:9px">
+          <input class="inp" id="zName" style="margin-top:0" maxlength="30" data-i18n-ph="s.zName" placeholder="Tên khu (ví dụ: Khu A1)">
+          <input class="inp" id="zPlant" style="margin-top:0" maxlength="30" data-i18n-ph="s.zPlant" placeholder="Trồng cây gì?">
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:6px"><button class="textbtn" id="zDelete" data-i18n="s.zDelThis">Xoá khu này</button></div>
+      </div>
+      <div class="srow"><div class="lab"><span data-i18n="s.plantRow">Loại cây đang trồng</span><div class="d" data-i18n="s.plantRowSub">Chọn cây để nạp nhanh ngưỡng phù hợp</div></div><button class="mini green" id="plantBtn" data-i18n="s.plantPick">Chọn cây</button></div>
       <div class="scol">
         <div class="lab"><span data-i18n="s.on">Tưới khi đất khô dưới</span><b class="val"><span id="v-on">45</span>%</b></div>
         <input type="range" id="s-on" min="10" max="60" step="1" value="45">
@@ -759,17 +871,6 @@ details.adv .advbody{padding:2px 18px 16px}
         <div class="chiprow" id="schedList"></div>
       </div>
       <div class="scol"><button class="btn green" id="saveBtn" style="width:100%" data-i18n="s.save">Lưu cài đặt tưới</button><div class="statmsg" id="saveMsg"></div></div>
-    </div>
-  </div>
-
-  <div class="setgroup">
-    <div class="gt" data-i18n="s.zones">Khu vườn</div>
-    <div class="setcard">
-      <div class="scol">
-        <div class="lab"><span data-i18n="s.zonesSub2">Chia vườn thành từng khu để theo dõi riêng</span></div>
-        <div id="secEditor"></div>
-        <button class="mini green" id="addSecBtn" style="margin-top:12px;width:100%" data-i18n="s.addZone">+ Thêm khu mới</button>
-      </div>
     </div>
   </div>
 
@@ -848,6 +949,24 @@ details.adv .advbody{padding:2px 18px 16px}
   <div id="locRes" style="margin-top:8px;max-height:240px;overflow:auto"></div>
 </div>
 
+<!-- Chọn loại cây (preset ngưỡng) -->
+<div class="pop-ov" id="ppOv"></div>
+<div class="locpop" id="plantPop" role="dialog" aria-label="Chọn loại cây">
+  <h4 data-i18n="pp.title">Bạn trồng cây gì?</h4>
+  <div style="padding:10px 2px 4px">
+    <button class="mini" id="ppCreate" style="width:100%" data-i18n="pp.new">+ Lưu ngưỡng đang chỉnh thành cây mới</button>
+    <div id="ppForm" hidden style="margin-top:10px">
+      <input class="inp" id="ppName" maxlength="40" style="margin-top:0" data-i18n-ph="pp.name" placeholder="Tên cây (vd: Ớt chỉ thiên nhà mình)">
+      <div id="ppSummary" style="font-size:13px;color:var(--muted);margin:8px 4px"></div>
+      <div style="display:flex;gap:8px">
+        <button class="mini" id="ppCancel" style="flex:1" data-i18n="tp.cancel">Huỷ</button>
+        <button class="mini green" id="ppSave" style="flex:1" data-i18n="pp.save">Lưu cây</button>
+      </div>
+    </div>
+  </div>
+  <div id="ppList" style="max-height:340px;overflow:auto"></div>
+</div>
+
 <!-- Bánh xe chọn giờ kiểu Apple -->
 <div class="pop-ov" id="tpOv"></div>
 <div class="timepop" id="timePop" role="dialog" aria-label="Chọn giờ">
@@ -894,18 +1013,18 @@ const DICT={vi:{
  "d.title":"Hôm nay cần chú ý","d.sub":"Nhắc việc theo thời tiết và vườn của bạn","d.add":"Thêm việc của bạn…",
  "p.title":"Ảnh vườn","p.empty":"Chưa có ảnh. Bấm nút bên dưới để chụp hoặc chọn ảnh vườn của bạn.","p.take":"Chụp / chọn ảnh","p.clear":"Xoá ảnh",
  "g.title":"Lịch sử vườn","g.day":"Hôm nay","g.week":"7 ngày","g.month":"30 ngày",
- "g.temp":"Nhiệt độ vườn","g.moist":"Độ ẩm đất","g.water":"Số lần tưới","g.events":"Hệ thống đã làm gì",
- "g.eventsSub":"Tưới, tắt van và cảnh báo gần đây","g.log":"Sổ tay canh tác","g.note":"Ghi chú…","g.clear":"Xoá",
- "g.noev":"Chưa có hoạt động nào","g.nolog":"Chưa có ghi chép. Hãy ghi lại việc bạn làm cho vườn.",
+ "g.temp":"Nhiệt độ vườn","g.moist":"Độ ẩm đất","g.water":"Số lần tưới","g.events":"Nhật ký hoạt động",
+ "g.eventsSub":"Lịch sử tưới, đóng mở van và cảnh báo","g.log":"Sổ tay canh tác","g.note":"Ghi chú…","g.clear":"Xoá",
+ "g.noev":"Chưa ghi nhận hoạt động nào","g.nolog":"Chưa có ghi chép. Hãy ghi lại việc bạn làm cho vườn.",
  "g.goodT":"Vùng tốt","g.perHour":"theo giờ, hôm nay","g.perDay":"theo ngày",
  "s.title":"Cài đặt","s.general":"Chung","s.lang":"Ngôn ngữ","s.dark":"Giao diện tối",
  "s.demo":"Chế độ dùng thử","s.demoSub":"Tự tạo số liệu giả để xem thử, không cần thiết bị",
- "s.auto":"Tưới tự động","s.zoneFor":"Áp dụng cho khu","s.on":"Tưới khi đất khô dưới","s.off":"Ngừng tưới khi đủ ẩm",
+ "s.auto":"Khu vườn & tưới tự động","s.zoneFor":"Áp dụng cho khu","s.on":"Tưới khi đất khô dưới","s.off":"Ngừng tưới khi đủ ẩm",
  "s.durL":"Mỗi lần tưới","s.sec":"giây","s.trange":"Nhiệt độ tốt cho cây",
  "s.rain":"Hoãn tưới khi trời sắp mưa","s.rainSub":"Tiết kiệm nước, tránh cây bị úng","s.rainTh":"Hoãn nếu khả năng mưa trên",
  "s.sched":"Giờ tưới hằng ngày","s.schedSub":"Hệ thống tự tưới vào các giờ này","s.addTime":"+ Thêm giờ","s.noTime":"Chưa đặt giờ nào",
  "s.save":"Lưu cài đặt tưới","s.saved":"✓ Đã lưu. Hệ thống sẽ làm theo cài đặt mới.","s.saveErr":"Chưa lưu được, thử lại sau.",
- "s.zones":"Khu vườn","s.zonesSub2":"Chia vườn thành từng khu để theo dõi riêng","s.addZone":"+ Thêm khu mới",
+ "s.zones":"Khu vườn","s.zonesSub2":"Chọn khu để chỉnh — mỗi khu có cây và ngưỡng tưới riêng","s.addZone":"+ Thêm khu mới","s.zDelThis":"Xoá khu này",
  "s.zName":"Tên khu (ví dụ: Khu A1)","s.zPlant":"Trồng cây gì?","s.zActive":"Đang theo dõi","s.zPick":"Theo dõi khu này","s.zDel":"Xoá",
  "s.tg":"Báo tin qua Telegram","s.tgQuick":"Nhận cảnh báo trên điện thoại","s.tgQuickSub":"Bot của hệ thống:",
  "s.tgConnect":"Kết nối Telegram của tôi","s.tgOn":"Gửi cảnh báo","s.tgOnSub":"Báo khi đất quá khô, trời quá nóng, mất kết nối",
@@ -915,7 +1034,10 @@ const DICT={vi:{
  "s.data":"Dữ liệu","s.csv":"Tải số liệu về máy","s.csvSub":"Tệp Excel (CSV) gồm nhiệt độ và độ ẩm đã ghi",
  "s.account":"Tài khoản","s.user":"Người dùng","s.pw":"Đổi mật khẩu","s.pwCur":"Mật khẩu hiện tại","s.pwNew":"Mật khẩu mới (từ 6 ký tự)","s.pwConf":"Nhập lại mật khẩu mới","s.pwBtn":"Đổi mật khẩu","s.logout":"Đăng xuất",
  "ev.water":"Tưới","ev.stop":"Tắt","ev.alert":"Cảnh báo","ev.config":"Cài đặt","ev.delay":"Hoãn",
- "tp.title":"Chọn giờ","tp.cancel":"Huỷ","tp.ok":"Xong"
+ "tp.title":"Chọn giờ","tp.cancel":"Huỷ","tp.ok":"Xong","zp.title":"Áp dụng cho khu nào?",
+ "pp.title":"Bạn trồng cây gì?","s.plantRow":"Loại cây đang trồng","s.plantRowSub":"Chọn cây để nạp nhanh ngưỡng phù hợp","s.plantPick":"Chọn cây",
+ "pp.new":"+ Lưu ngưỡng đang chỉnh thành cây mới","pp.name":"Tên cây (vd: Ớt chỉ thiên nhà mình)","pp.save":"Lưu cây",
+ "s.big":"Cỡ chữ","s.zSensor":"Mã cảm biến (vd: A1)"
 },en:{
  "t.home":"Home","t.weather":"Weather","t.history":"History","t.settings":"Settings",
  "h.status":"Garden status","h.connecting":"Connecting…","h.temp":"Garden temp","h.moist":"Soil moisture",
@@ -937,18 +1059,18 @@ const DICT={vi:{
  "d.title":"Today's reminders","d.sub":"Based on your garden and the weather","d.add":"Add your own task…",
  "p.title":"Garden photo","p.empty":"No photo yet. Tap below to take or choose a photo of your garden.","p.take":"Take / choose photo","p.clear":"Remove",
  "g.title":"Garden history","g.day":"Today","g.week":"7 days","g.month":"30 days",
- "g.temp":"Garden temperature","g.moist":"Soil moisture","g.water":"Waterings","g.events":"What the system did",
- "g.eventsSub":"Recent watering, valve and alerts","g.log":"Farm notebook","g.note":"Note…","g.clear":"Clear",
+ "g.temp":"Garden temperature","g.moist":"Soil moisture","g.water":"Waterings","g.events":"Activity log",
+ "g.eventsSub":"Watering, valve and alert history","g.log":"Farm notebook","g.note":"Note…","g.clear":"Clear",
  "g.noev":"No activity yet","g.nolog":"No entries yet. Note down what you do for the garden.",
  "g.goodT":"Good range","g.perHour":"by hour, today","g.perDay":"by day",
  "s.title":"Settings","s.general":"General","s.lang":"Language","s.dark":"Dark mode",
  "s.demo":"Try-out mode","s.demoSub":"Generates sample data so you can explore without a device",
- "s.auto":"Auto watering","s.zoneFor":"Applies to zone","s.on":"Water when soil drier than","s.off":"Stop when moisture reaches",
+ "s.auto":"Zones & auto watering","s.zoneFor":"Applies to zone","s.on":"Water when soil drier than","s.off":"Stop when moisture reaches",
  "s.durL":"Each watering lasts","s.sec":"sec","s.trange":"Good temperature for plants",
  "s.rain":"Delay watering when rain is coming","s.rainSub":"Saves water, avoids waterlogging","s.rainTh":"Delay if rain chance is over",
  "s.sched":"Daily watering times","s.schedSub":"The system waters at these times","s.addTime":"+ Add time","s.noTime":"No times set",
  "s.save":"Save watering settings","s.saved":"✓ Saved. The system will follow the new settings.","s.saveErr":"Could not save, try again.",
- "s.zones":"Garden zones","s.zonesSub2":"Split your garden into zones to track separately","s.addZone":"+ Add zone",
+ "s.zones":"Garden zones","s.zonesSub2":"Pick a zone to edit — each has its own plant and thresholds","s.addZone":"+ Add zone","s.zDelThis":"Delete this zone",
  "s.zName":"Zone name (e.g. Plot A1)","s.zPlant":"What's planted?","s.zActive":"Tracking","s.zPick":"Track this zone","s.zDel":"Delete",
  "s.tg":"Telegram alerts","s.tgQuick":"Get alerts on your phone","s.tgQuickSub":"System bot:",
  "s.tgConnect":"Connect my Telegram","s.tgOn":"Send alerts","s.tgOnSub":"When soil is too dry, too hot, or sensor lost",
@@ -958,7 +1080,10 @@ const DICT={vi:{
  "s.data":"Data","s.csv":"Download my data","s.csvSub":"Excel (CSV) file with recorded temperature and moisture",
  "s.account":"Account","s.user":"User","s.pw":"Change password","s.pwCur":"Current password","s.pwNew":"New password (6+ characters)","s.pwConf":"Repeat new password","s.pwBtn":"Change password","s.logout":"Log out",
  "ev.water":"Water","ev.stop":"Stop","ev.alert":"Alert","ev.config":"Config","ev.delay":"Delay",
- "tp.title":"Set time","tp.cancel":"Cancel","tp.ok":"Done"
+ "tp.title":"Set time","tp.cancel":"Cancel","tp.ok":"Done","zp.title":"Apply to which zone?",
+ "pp.title":"What are you growing?","s.plantRow":"Plant type","s.plantRowSub":"Pick a plant to load good thresholds","s.plantPick":"Choose plant",
+ "pp.new":"+ Save current thresholds as a new plant","pp.name":"Plant name (e.g. My chili patch)","pp.save":"Save plant",
+ "s.big":"Text size","s.zSensor":"Sensor code (e.g. A1)"
 }};
 let lang=localStorage.getItem("sporo-lang")||"vi";
 function t(k){ return (DICT[lang]&&DICT[lang][k])||DICT.vi[k]||k; }
@@ -968,6 +1093,8 @@ function applyLang(){ document.documentElement.lang=lang;
   document.querySelectorAll("#langSeg button").forEach(b=>b.classList.toggle("on",b.dataset.l===lang));
   renderGreeting(); fillLogSelect(); renderZoneStrip(); renderSecEditor(); renderSched(); renderLog();
   if(lastWx)renderWeather(lastWx); if(lastAdvice)renderAdvice(lastAdvice); if(lastData)render(lastData);
+  if(typeof applyTS==="function"&&$("tsSlider"))applyTS(+$("tsSlider").value);
+  if(typeof moveTabInd==="function")moveTabInd(true);   // nhãn tab đổi độ rộng theo ngôn ngữ
   updateChartSubs(); }
 function setLang(l){ lang=l; localStorage.setItem("sporo-lang",l); applyLang(); ensurePlaceName(); }
 document.querySelectorAll("#langSeg button").forEach(b=>b.onclick=()=>setLang(b.dataset.l));
@@ -985,10 +1112,23 @@ function getActive(){ return sections.find(s=>String(s.id)===String(activeSec))|
 function setActive(id){ activeSec=String(id); saveSec(); renderZoneStrip(); renderPhoto(); renderLog();
   if(typeof syncSettings==="function")syncSettings();
   if(lastData)render(lastData); }
-/* mỗi khu lệch nhẹ nhiệt/ẩm để phân biệt (đặc tính mô phỏng của sản phẩm) */
+/* Khu có MÃ CẢM BIẾN riêng (ESP32 gửi &sec=A1) → dùng số liệu thật của khu đó.
+   Khu chưa gắn cảm biến → lệch nhẹ từ cảm biến chính để phân biệt (mô phỏng). */
+function zoneSensor(sec){ return sec&&sec.sensor?String(sec.sensor).trim():""; }
+function zoneReal(sec){ const k=zoneSensor(sec);
+  if(!k||!lastData||!lastData.zoneLatest)return null;
+  const z=lastData.zoneLatest[k]; if(!z)return null;
+  const age=(Date.now()-new Date(z.time).getTime())/60000;
+  return age<=120?z:null; }   // dữ liệu khu quá 2 giờ coi như mất
+function zoneRealHist(sec){ const k=zoneSensor(sec);
+  return (k&&lastData&&lastData.zoneHist&&lastData.zoneHist[k])||null; }
 function zoneDelta(sec){ if(!sec)return {dt:0,dm:0}; const i=Math.max(0,sections.findIndex(s=>String(s.id)===String(sec.id)));
   const dts=[0,1.3,-1.1,0.8,-0.6,1.5], dms=[0,-4,3,-2,4,-3]; return {dt:dts[i%dts.length],dm:dms[i%dms.length]}; }
-function zoneFav(sec){ if(!lastData)return null; const zd=zoneDelta(sec),h=lastData.history||[];
+function zoneFav(sec){ if(!lastData)return null;
+  const rh=zoneRealHist(sec);
+  if(rh&&rh.length){ let inz=0,n=0; rh.forEach(x=>{ if(x.temp==null)return; n++; if(x.temp>=cfg.tempMin&&x.temp<=cfg.tempMax)inz++; });
+    return n?Math.round(inz/n*100):null; }
+  const zd=zoneDelta(sec),h=lastData.history||[];
   if(!h.length)return lastData.stats?lastData.stats.favorablePercent:null;
   let inz=0,n=0; h.forEach(x=>{ if(x.temp==null)return; n++; const tt=x.temp+zd.dt; if(tt>=cfg.tempMin&&tt<=cfg.tempMax)inz++; });
   return n?Math.round(inz/n*100):null; }
@@ -1004,13 +1144,34 @@ $("darkToggle").onchange=e=>setTheme(e.target.checked?"dark":"light");
 /* ============ CHUYỂN TRANG ============ */
 const SECTIONS=["secHome","secWx","secHist","secSet"];
 function switchTab(id){ if(!SECTIONS.includes(id))return;
-  SECTIONS.forEach(s=>{ const el=$(s); el.hidden=s!==id; if(s===id){ el.classList.remove("tabsec"); void el.offsetWidth; el.classList.add("tabsec"); } });
+  SECTIONS.forEach(s=>{ const el=$(s); const on=s===id; el.hidden=!on;
+    if(on){ const seen=el.dataset.seen==="1";
+      el.classList.remove("tabsec","tabquick"); void el.offsetWidth;
+      el.classList.add(seen?"tabquick":"tabsec");   // lần đầu: dàn thẻ; lần sau: fade 0.2s
+      el.dataset.seen="1"; } });
   document.querySelectorAll("[data-go]").forEach(b=>{ if(b.dataset.go)b.classList.toggle("on",b.dataset.go===id); });
-  window.scrollTo({top:0,behavior:"smooth"});
+  moveTabInd();           // viên xanh trượt tới tab vừa chọn
+  window.scrollTo(0,0);   // về đầu trang tức thì — không chạy đua với animation vào tab
   if(id==="secHist") setTimeout(()=>{ [tChart,mChart,wChart].forEach(c=>{try{c&&c.resize();}catch(e){}}); refreshCharts(); },80);
   if(id==="secWx"&&lastWx) setTimeout(()=>renderCurve(lastWx),80);
+  if(id==="secSet") setTimeout(()=>{ if(typeof tsUI==="function"&&$("tsSlider"))tsUI(+$("tsSlider").value); },60);
 }
 document.querySelectorAll("[data-go]").forEach(el=>el.addEventListener("click",e=>{ switchTab(el.dataset.go); if(e.detail>0)el.blur(); }));
+/* Viên xanh trượt của thanh tab — dịch bằng transform (GPU),
+   thời lượng tự co giãn theo quãng đường: đi xa thì thong thả, không phóng-phanh gắt */
+let _indX=null;
+function moveTabInd(instant){ const bar=$("topTabs"),ind=$("tabInd"); if(!bar||!ind)return;
+  const on=bar.querySelector("button.on"); if(!on||!on.offsetWidth)return;
+  const x=on.offsetLeft;
+  if(instant){ ind.style.transition="none"; }
+  else { const dist=_indX==null?0:Math.abs(x-_indX);
+    const dur=Math.min(.42, .27 + dist/1100);       // 1 tab kề ~0.3s · đầu này sang đầu kia ~0.42s
+    ind.style.transitionDuration=dur.toFixed(2)+"s,"+dur.toFixed(2)+"s,.2s"; }
+  ind.style.width=on.offsetWidth+"px";
+  ind.style.transform=`translate3d(${x}px,0,0)`;
+  _indX=x;
+  if(instant)requestAnimationFrame(()=>ind.style.transition="");
+  ind.classList.add("ready"); }
 
 /* ============ LỜI CHÀO & THỜI GIAN ============ */
 const DOW={vi:["Chủ Nhật","Thứ Hai","Thứ Ba","Thứ Tư","Thứ Năm","Thứ Sáu","Thứ Bảy"],en:["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]};
@@ -1056,7 +1217,8 @@ function renderHero(d,temp,moist){
   $("hsDot").style.background=col;
   $("hsWord").textContent=score==null?t("h.nodata"):score>=80?t("h.good"):score>=55?t("h.warn"):t("h.bad");
   const z=getActive();
-  $("hsSub").textContent=(z?z.name:"")+(z&&z.plant?" · "+z.plant:"");
+  const sTag=zoneReal(z)?(lang==="vi"?" · cảm biến "+zoneSensor(z):" · sensor "+zoneSensor(z)):"";
+  $("hsSub").textContent=(z?z.name:"")+(z&&z.plant?" · "+z.plant:"")+sTag;
   $("vTemp").textContent=temp!=null?temp.toFixed(1):"--";
   $("vMoist").textContent=moist!=null?moist:"--";
   const bT=$("bTemp");
@@ -1109,6 +1271,33 @@ function updateWaterTimer(){ const d=lastData; if(!d)return; const on=d.valveSta
     else { const mm=Math.floor(el/60),ss=Math.floor(el%60); tl.textContent=(lang==="vi"?"Đang tưới · đã ":"Watering · ")+mm+":"+String(ss).padStart(2,"0"); } }
   else tl.textContent=lang==="vi"?"Đang tưới…":"Watering…"; }
 setInterval(updateWaterTimer,1000);
+/* ===== DỰ ĐOÁN GIỜ ĐẤT KHÔ — hồi quy tuyến tính trên dữ liệu ẩm gần nhất ===== */
+function predictDry(d,moistNow){
+  if(moistNow==null||!cfg||d.valveState==="ON")return null;
+  if(moistNow<=cfg.moistureOn)return null;               // đã khô — có cảnh báo riêng
+  let h=zoneRealHist(getActive())||(d.history||[]);
+  h=h.slice(-30).filter(x=>x.moisture!=null);
+  if(h.length<6)return null;
+  const t0=new Date(h[0].time).getTime();
+  const pts=h.map(x=>[(new Date(x.time).getTime()-t0)/60000, x.moisture]);
+  const n=pts.length;
+  const sx=pts.reduce((a,p)=>a+p[0],0), sy=pts.reduce((a,p)=>a+p[1],0);
+  const sxx=pts.reduce((a,p)=>a+p[0]*p[0],0), sxy=pts.reduce((a,p)=>a+p[0]*p[1],0);
+  const den=n*sxx-sx*sx; if(!den)return null;
+  const slope=(n*sxy-sx*sy)/den;                          // %/phút
+  if(slope>=-0.01)return null;                            // đất không khô đi rõ rệt
+  const mins=(moistNow-cfg.moistureOn)/(-slope);
+  return (mins>3&&mins<=24*60)?mins:null;                 // chỉ báo trong vòng 24 giờ
+}
+function renderDryPred(d,moist){ const el=$("dryPred"); if(!el)return;
+  const mins=predictDry(d,moist);
+  if(mins==null){ el.hidden=true; return; }
+  const eta=new Date(Date.now()+mins*60000);
+  const rel=mins<90?Math.round(mins)+(lang==="vi"?" phút":" min"):((mins/60).toFixed(1))+(lang==="vi"?" giờ":" h");
+  $("dryPredT").textContent=lang==="vi"
+    ?`Dự kiến đất chạm ngưỡng khô lúc ${fmtT(eta.toISOString())} (còn ~${rel}) — hệ thống sẽ tự tưới.`
+    :`Soil should reach the dry threshold at ${fmtT(eta.toISOString())} (~${rel} left) — auto-watering will handle it.`;
+  el.hidden=false; }
 async function valve(action){ const btn=$("waterBtn"); btn.disabled=true;
   try{ const r=await fetch("/api/valve",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action})});
     if(!r.ok)throw 0; await refresh();
@@ -1204,7 +1393,10 @@ function renderChecklist(temp,moist){ const host=$("aiCheck"); if(!host)return;
     if(String(id).startsWith("u")){ const c=lsGet("sporo-todoc-"+todoKey(),"[]").filter(x=>x.id!==id); localStorage.setItem("sporo-todoc-"+todoKey(),JSON.stringify(c)); }
     else { const dd=lsGet("sporo-todod-"+todoKey(),"[]"); if(!dd.includes(id)){dd.push(id);localStorage.setItem("sporo-todod-"+todoKey(),JSON.stringify(dd));} }
     renderCheckNow(); }); }
-function renderCheckNow(){ if(!lastData)return; const zd=zoneDelta(getActive());
+function renderCheckNow(){ if(!lastData)return;
+  const zr=zoneReal(getActive());
+  if(zr){ renderChecklist(zr.temp!=null?+(+zr.temp).toFixed(1):null, zr.moisture!=null?Math.round(zr.moisture):null); return; }
+  const zd=zoneDelta(getActive());
   const bt=lastData.latest&&lastData.latest.temp!=null?lastData.latest.temp:null;
   const bm=lastData.latest&&lastData.latest.moisture!=null?lastData.latest.moisture:null;
   renderChecklist(bt!=null?+(bt+zd.dt).toFixed(1):null, bm!=null?Math.max(0,Math.min(100,Math.round(bm+zd.dm))):null); }
@@ -1244,14 +1436,22 @@ function checkAlerts(temp,moist){ if(!cfg)return; const cur=new Map(), vi=lang==
 
 /* ============ VẼ LẠI TOÀN BỘ TỪ DỮ LIỆU ============ */
 function render(d){ lastData=d; cfg=d.config||cfg;
-  const zd=zoneDelta(getActive());
-  const bt=d.latest&&d.latest.temp!=null?d.latest.temp:null;
-  const bm=d.latest&&d.latest.moisture!=null?d.latest.moisture:null;
-  const temp=bt!=null?+(bt+zd.dt).toFixed(1):null;
-  const moist=bm!=null?Math.max(0,Math.min(100,Math.round(bm+zd.dm))):null;
+  let temp=null,moist=null;
+  const zr=zoneReal(getActive());
+  if(zr){ // cảm biến riêng của khu
+    temp=zr.temp!=null?+(+zr.temp).toFixed(1):null;
+    moist=zr.moisture!=null?Math.max(0,Math.min(100,Math.round(zr.moisture))):null;
+  } else {
+    const zd=zoneDelta(getActive());
+    const bt=d.latest&&d.latest.temp!=null?d.latest.temp:null;
+    const bm=d.latest&&d.latest.moisture!=null?d.latest.moisture:null;
+    temp=bt!=null?+(bt+zd.dt).toFixed(1):null;
+    moist=bm!=null?Math.max(0,Math.min(100,Math.round(bm+zd.dm))):null;
+  }
   if(d.user&&d.user!==greetName){ greetName=d.user; renderGreeting(); $("accName").textContent=d.user; }
   renderHero(d,temp,moist);
   renderWater(d);
+  renderDryPred(d,moist);
   renderZoneStrip();
   renderNotes(temp);
   renderChecklist(temp,moist);
@@ -1435,10 +1635,13 @@ let tChart=null,mChart=null,wChart=null,histRange="day";
 const nice=v=>v==null?v:Math.round(v*10)/10;   // làm tròn 1 số lẻ, cắt lỗi 25.900000000004
 function chartOpts(unit){ const grid=cssv("--line"),mut=cssv("--muted");
   return { responsive:true,maintainAspectRatio:false,interaction:{mode:"index",intersect:false},
+    /* dữ liệu mới trượt vào mượt kiểu Apple */
+    animation:{duration:700,easing:"easeInOutQuart"},
+    animations:{y:{duration:700,easing:"easeInOutQuart"},x:{duration:400,easing:"easeOutQuad"}},
     plugins:{legend:{display:false},tooltip:{backgroundColor:cssv("--card-solid"),titleColor:cssv("--text"),bodyColor:cssv("--muted"),borderColor:grid,borderWidth:1,padding:10,cornerRadius:10,displayColors:false,
       callbacks:{label:c=>nice(c.parsed.y)+unit}}},
     scales:{x:{grid:{display:false},ticks:{color:mut,maxTicksLimit:6,font:{size:11}}},
-            y:{grid:{color:grid},border:{display:false},ticks:{color:mut,maxTicksLimit:5,font:{size:11},callback:v=>nice(v)+unit}}},
+            y:{grid:{color:grid},border:{display:false},ticks:{color:mut,maxTicksLimit:5,font:{size:11},callback:v=>(Math.round(v*100)/100)+unit}}},
     elements:{point:{radius:0,hoverRadius:5},line:{tension:.35}} }; }
 function grad(hex){ return c=>{ const {ctx,chartArea}=c.chart; if(!chartArea)return "transparent";
   const g=ctx.createLinearGradient(0,chartArea.top,0,chartArea.bottom);
@@ -1457,20 +1660,20 @@ function updateChartSubs(){ $("tempChartSub").textContent=(lang==="vi"?"Vùng t�
   $("waterChartSub").textContent=histRange==="day"?t("g.perHour"):t("g.perDay"); }
 function updateLiveCharts(d){ if(!tChart||!tChart.data)return; const h=(d.history||[]).slice(-48);
   const lb=h.map(x=>fmtT(x.time));
-  tChart.data.labels=lb; tChart.data.datasets[0].data=h.map(x=>nice(x.temp)); tChart.update("none");
-  mChart.data.labels=lb; mChart.data.datasets[0].data=h.map(x=>x.moisture); mChart.update("none");
+  tChart.data.labels=lb; tChart.data.datasets[0].data=h.map(x=>nice(x.temp)); tChart.update();
+  mChart.data.labels=lb; mChart.data.datasets[0].data=h.map(x=>x.moisture); mChart.update();
   const byH={}; (d.events||[]).filter(e=>e.type==="Tưới"&&new Date(e.time).toDateString()===new Date().toDateString())
     .forEach(e=>{ const k=new Date(e.time).getHours(); byH[k]=(byH[k]||0)+1; });
   const hrs=Object.keys(byH).sort((a,b)=>a-b);
-  wChart.data.labels=hrs.map(x=>String(x).padStart(2,"0")+"h"); wChart.data.datasets[0].data=hrs.map(x=>byH[x]); wChart.update("none"); }
+  wChart.data.labels=hrs.map(x=>String(x).padStart(2,"0")+"h"); wChart.data.datasets[0].data=hrs.map(x=>byH[x]); wChart.update(); }
 async function loadRange(days){ try{
     const r=await fetch("/api/history?days="+days); const j=await r.json(); const p=j.points||[];
     const lb=p.map(x=>new Date(x.t).toLocaleDateString(lang==="vi"?"vi-VN":"en-GB",{day:"2-digit",month:"2-digit"})+" "+new Date(x.t).getHours()+"h");
-    tChart.data.labels=lb; tChart.data.datasets[0].data=p.map(x=>x.temp!=null?+(+x.temp).toFixed(1):null); tChart.update("none");
-    mChart.data.labels=lb; mChart.data.datasets[0].data=p.map(x=>x.moisture!=null?Math.round(x.moisture):null); mChart.update("none");
+    tChart.data.labels=lb; tChart.data.datasets[0].data=p.map(x=>x.temp!=null?+(+x.temp).toFixed(1):null); tChart.update();
+    mChart.data.labels=lb; mChart.data.datasets[0].data=p.map(x=>x.moisture!=null?Math.round(x.moisture):null); mChart.update();
     const ra=await fetch("/api/analytics?days="+days); const ja=await ra.json(); const dd=ja.days||[];
     wChart.data.labels=dd.map(x=>new Date(x.day).toLocaleDateString(lang==="vi"?"vi-VN":"en-GB",{day:"2-digit",month:"2-digit"}));
-    wChart.data.datasets[0].data=dd.map(x=>x.water||0); wChart.update("none");
+    wChart.data.datasets[0].data=dd.map(x=>x.water||0); wChart.update();
   }catch(e){} }
 function refreshCharts(){ if(histRange==="day"){ if(lastData)updateLiveCharts(lastData); } else loadRange(histRange); updateChartSubs(); }
 document.querySelectorAll("[data-rng]").forEach(b=>b.onclick=()=>{
@@ -1529,10 +1732,133 @@ function paintRange(el){ const min=+el.min,max=+el.max,v=+el.value;
   s.oninput=()=>{ $("v-"+id).textContent=s.value; paintRange(s); }; });
 $("rainTh").oninput=e=>{ $("rainThV").textContent=e.target.value; paintRange(e.target); };
 $("rainToggle").onchange=e=>{ $("rainThRow").style.display=e.target.checked?"":"none"; };
-function syncThreshLabel(){ const z=getActive(); $("threshZone").textContent=z.name+(z.plant?" · "+z.plant:""); }
-$("threshZone").onclick=()=>{ // chuyển vòng qua các khu
-  const i=sections.findIndex(s=>String(s.id)===String(activeSec));
-  setActive(String(sections[(i+1)%sections.length].id)); syncSettings(); };
+function syncThreshLabel(){ /* nhãn khu cũ đã gộp vào chip #setZones */ }
+/* ===== KHU VƯỜN & TƯỚI TỰ ĐỘNG — gộp một nơi: chip chọn khu + sửa tên/cây tại chỗ ===== */
+function renderSetZones(){ const host=$("setZones"); if(!host)return;
+  host.innerHTML=sections.map(s=>{ const on=String(s.id)===String(activeSec);
+    return `<button class="mini ${on?"green":""}" data-id="${s.id}" style="border-radius:999px">${on?"✓ ":""}${esc(s.name)}</button>`; }).join("")+
+    `<button class="mini" id="setZoneAdd" style="border-radius:999px;color:var(--green)">＋ ${lang==="vi"?"Thêm khu":"Add zone"}</button>`;
+  host.querySelectorAll("button[data-id]").forEach(b=>b.onclick=()=>{ setActive(b.dataset.id);
+    showToast((lang==="vi"?"Đang chỉnh ":"Now editing ")+getActive().name,"ok"); });
+  const add=$("setZoneAdd"); if(add)add.onclick=()=>{ const z={id:Date.now(),name:(lang==="vi"?"Khu ":"Zone ")+(sections.length+1),plant:""};
+    sections.push(z); saveSec(); setActive(String(z.id)); }; }
+function syncZoneInputs(){ const z=getActive();
+  const n=$("zName"),p=$("zPlant"); if(!n)return;
+  if(document.activeElement!==n)n.value=z.name||"";
+  if(document.activeElement!==p)p.value=z.plant||"";
+  const del=$("zDelete"); if(del)del.style.display=sections.length>1?"":"none"; }
+if($("zName")){
+  $("zName").oninput=e=>{ getActive().name=e.target.value; saveSec(); renderZoneStrip(); renderSetZones(); if(lastData)render(lastData); };
+  $("zPlant").oninput=e=>{ getActive().plant=e.target.value; saveSec(); renderZoneStrip(); if(lastData)render(lastData); };
+  $("zDelete").onclick=()=>{ if(sections.length<=1)return;
+    const z=getActive();
+    if(!confirm((lang==="vi"?`Xoá khu "${z.name}"?`:`Delete zone "${z.name}"?`)))return;
+    sections=sections.filter(x=>String(x.id)!==String(z.id));
+    activeSec=String(sections[0].id); saveSec();
+    renderZoneStrip(); renderPhoto(); renderLog(); syncSettings(); if(lastData)render(lastData); };
+}
+
+/* ===== PRESET THEO LOẠI CÂY — cây quen thuộc với nhà nông, chia nhóm dễ tìm ===== */
+const PLANT_GROUPS=[
+ {vi:"Rau màu",en:"Vegetables",items:[
+   ["muong","Rau muống","Water spinach",55,80,20,32,12],
+   ["xalach","Xà lách","Lettuce",55,75,16,26,10],
+   ["caixanh","Cải xanh, cải ngọt","Mustard greens",50,75,18,28,10],
+   ["cachua","Cà chua","Tomato",45,70,21,29,18],
+   ["ot","Ớt","Chili",40,65,22,32,15],
+   ["dualeo","Dưa leo","Cucumber",50,75,22,30,15],
+   ["bap","Bắp (ngô)","Corn",40,60,24,34,15],
+   ["dau","Đậu que, đậu đũa","Green beans",45,65,20,30,12],
+   ["hanh","Hành lá","Green onion",50,70,18,28,10],
+   ["bimuop","Bí, bầu, mướp","Squash & gourds",45,65,22,32,15],
+   ["khoai","Khoai lang","Sweet potato",40,60,22,32,12],
+   ["duahau","Dưa hấu","Watermelon",40,65,24,33,18]]},
+ {vi:"Cây ăn trái",en:"Fruit trees",items:[
+   ["thanhlong","Thanh long","Dragon fruit",35,55,22,35,20],
+   ["xoai","Xoài","Mango",35,55,24,35,20],
+   ["chuoi","Chuối","Banana",50,70,24,34,20],
+   ["camchanh","Cam, chanh, bưởi","Citrus",45,65,22,32,20],
+   ["saurieng","Sầu riêng","Durian",50,70,24,32,25],
+   ["dautay","Dâu tây (xứ lạnh)","Strawberry",55,75,15,25,10]]},
+ {vi:"Cây công nghiệp",en:"Industrial crops",items:[
+   ["caphe","Cà phê","Coffee",45,65,18,28,22],
+   ["tieu","Hồ tiêu","Black pepper",45,65,22,30,18]]},
+ {vi:"Hoa và cây cảnh",en:"Flowers & ornamentals",items:[
+   ["cuc","Hoa cúc, vạn thọ","Chrysanthemum & marigold",45,65,18,28,12],
+   ["hong","Hoa hồng","Rose",45,65,18,28,12],
+   ["rauthom","Rau thơm (húng, quế…)","Herbs",50,70,20,30,10],
+   ["canh","Cây cảnh trong chậu","Potted plants",40,60,18,32,8]]}];
+const PLANTS=PLANT_GROUPS.flatMap(g=>g.items);
+/* cây do người dùng tự tạo — lưu lại để dùng mãi */
+function getMyPlants(){ return lsGet("sporo-plants","[]"); }
+function setMyPlants(a){ localStorage.setItem("sporo-plants",JSON.stringify(a)); }
+function applyPlantPreset(name,on,off,tmin,tmax,dur){
+  const map={on,off,tmin,tmax,dur};
+  for(const k in map){ const s=$("s-"+k); s.value=map[k]; $("v-"+k).textContent=map[k]; paintRange(s); }
+  const z=getActive(); z.plant=name; saveSec();
+  renderZoneStrip(); renderSecEditor(); syncThreshLabel();
+  openPlantPick(false);
+  showToast((lang==="vi"?"Đã nạp ngưỡng cho ":"Loaded thresholds for ")+name+
+    (lang==="vi"?" — bấm Lưu để áp dụng":" — press Save to apply"),"ok"); }
+function openPlantPick(o){ $("plantPop").classList.toggle("open",o); $("ppOv").classList.toggle("open",o);
+  if(o){ $("ppForm").hidden=true; renderPlantPick(); } }
+function renderPlantPick(){ const vi=lang==="vi";
+  const gh=n=>`<div style="font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);padding:14px 12px 4px">${n}</div>`;
+  const row=(attr,nm,on,off,tmin,tmax,dur,del)=>`<div class="locitem" ${attr} style="min-height:54px;display:flex;align-items:center;gap:8px">
+      <div style="flex:1;min-width:0"><div class="nm">${esc(nm)}</div>
+      <div class="s">${vi?"Ẩm":"Moist"} ${on}–${off}% · ${vi?"Nhiệt":"Temp"} ${tmin}–${tmax}°C · ${vi?"tưới":"water"} ${dur}s</div></div>${del||""}</div>`;
+  const mine=getMyPlants();
+  const mineHtml=mine.length?gh(vi?"Cây của tôi":"My plants")+mine.map(p=>
+    row(`data-cid="${p.id}"`,p.name,p.on,p.off,p.tmin,p.tmax,p.dur,
+      `<button class="ck-del" data-del="${p.id}" aria-label="Xoá cây này">×</button>`)).join(""):"";
+  $("ppList").innerHTML=mineHtml+PLANT_GROUPS.map(g=>gh(vi?g.vi:g.en)+
+    g.items.map(p=>row(`data-k="${p[0]}"`,vi?p[1]:p[2],p[3],p[4],p[5],p[6],p[7])).join("")).join("");
+  $("ppList").querySelectorAll(".locitem").forEach(el=>el.onclick=e=>{
+    if(e.target.closest(".ck-del"))return;
+    if(el.dataset.k){ const p=PLANTS.find(x=>x[0]===el.dataset.k); if(p)applyPlantPreset(lang==="vi"?p[1]:p[2],p[3],p[4],p[5],p[6],p[7]); }
+    else if(el.dataset.cid){ const p=getMyPlants().find(x=>x.id===el.dataset.cid); if(p)applyPlantPreset(p.name,p.on,p.off,p.tmin,p.tmax,p.dur); } });
+  $("ppList").querySelectorAll(".ck-del").forEach(b=>b.onclick=e=>{ e.stopPropagation();
+    const p=getMyPlants().find(x=>x.id===b.dataset.del);
+    if(!confirm((lang==="vi"?"Xoá cây \"":"Delete \"")+(p?p.name:"")+"\"?"))return;
+    setMyPlants(getMyPlants().filter(x=>x.id!==b.dataset.del)); renderPlantPick(); }); }
+/* tạo cây mới từ ngưỡng đang chỉnh trên các thanh trượt */
+$("ppCreate").onclick=()=>{ const f=$("ppForm"); f.hidden=!f.hidden;
+  if(!f.hidden){ const vi=lang==="vi";
+    $("ppSummary").textContent=(vi?"Sẽ lưu ngưỡng hiện tại: Ẩm ":"Will save current: Moist ")+
+      $("s-on").value+"–"+$("s-off").value+"% · "+(vi?"Nhiệt ":"Temp ")+$("s-tmin").value+"–"+$("s-tmax").value+"°C · "+
+      (vi?"tưới ":"water ")+$("s-dur").value+"s";
+    setTimeout(()=>$("ppName").focus(),100); } };
+$("ppCancel").onclick=()=>{ $("ppForm").hidden=true; };
+$("ppSave").onclick=()=>{ const name=$("ppName").value.trim();
+  if(!name){ $("ppName").focus(); return; }
+  const mine=getMyPlants();
+  mine.unshift({id:"p"+Date.now(),name,on:+$("s-on").value,off:+$("s-off").value,
+    tmin:+$("s-tmin").value,tmax:+$("s-tmax").value,dur:+$("s-dur").value});
+  setMyPlants(mine); $("ppName").value=""; $("ppForm").hidden=true; renderPlantPick();
+  showToast((lang==="vi"?"Đã lưu cây \"":"Saved \"")+name+(lang==="vi"?"\" — từ nay chọn lại được ngay":"\" for reuse"),"ok"); };
+$("ppName").addEventListener("keydown",e=>{ if(e.key==="Enter")$("ppSave").click(); });
+$("ppOv").onclick=()=>openPlantPick(false);
+$("plantBtn").onclick=()=>openPlantPick(true);
+
+/* ===== CỠ CHỮ 5 NẤC KIỂU APPLE ===== */
+/* Kéo là NHẢY THẲNG sang nấc kế (step=1). Núm gốc bị ẩn; núm tuỳ chỉnh + vệt xanh + nhãn
+   lướt tới nấc mới bằng spring 0.3s, chữ toàn trang tween theo — mượt như macOS. */
+const TS_STEPS=[[.93,"Nhỏ","Small"],[1,"Vừa","Default"],[1.09,"Lớn","Large"],[1.18,"Rất lớn","Extra large"],[1.28,"Cực lớn","Huge"]];
+function tsUI(i){ const s=$("tsSlider"); s.value=i; paintRange(s);
+  const rail=s.clientWidth-30;                     // bề rộng chạy được của núm (px)
+  if(rail>0){ const x=(i/4*rail).toFixed(1)+"px";  // dịch bằng transform → GPU render
+    $("tsThumb").style.setProperty("--tx",x);
+    $("tsVal").style.setProperty("--tx",x); }
+  $("tsVal").textContent=TS_STEPS[i][lang==="vi"?1:2]; }
+function applyTS(i){ i=Math.max(0,Math.min(4,Math.round(i)));
+  tsUI(i); localStorage.setItem("sporo-ts",String(i));
+  document.documentElement.style.setProperty("--ts",TS_STEPS[i][0]);
+  body.setAttribute("data-ts",String(i));          // nấc 1 (Vừa) = kích thước gốc tuyệt đối
+  if(typeof moveTabInd==="function")requestAnimationFrame(()=>moveTabInd(true)); }
+$("tsSlider").addEventListener("input",e=>applyTS(+e.target.value));
+{ let ts=parseInt(localStorage.getItem("sporo-ts"),10);
+  if(isNaN(ts)) ts=localStorage.getItem("sporo-big")==="1"?2:1;        // chuyển từ công tắc cũ
+  applyTS(ts); }
 let schedule=[];
 function renderSched(){ const host=$("schedList");
   host.innerHTML=schedule.length?schedule.map((tm,i)=>`<span class="schedchip">${tm}<button data-i="${i}" aria-label="Xoá giờ ${tm}">×</button></span>`).join("")
@@ -1588,25 +1914,8 @@ $("saveBtn").onclick=async()=>{ const on=+$("s-on").value,off=+$("s-off").value,
   }catch(e){ m.textContent=t("s.saveErr"); m.className="statmsg err show"; }
   setTimeout(()=>m.className="statmsg",4000); };
 
-/* ============ CÀI ĐẶT — KHU VƯỜN ============ */
-function renderSecEditor(){ const host=$("secEditor"); if(!host)return;
-  host.innerHTML=sections.map(s=>{ const on=String(s.id)===String(activeSec);
-    return `<div class="zoneedit" data-id="${s.id}">
-      <div class="r"><input data-k="name" placeholder="${t("s.zName")}" value="${esc(s.name)}"></div>
-      <div class="r"><input data-k="plant" placeholder="${t("s.zPlant")}" value="${esc(s.plant||"")}"></div>
-      <div class="r"><button class="mini ${on?"green":""} sact" style="flex:1">${on?"✓ "+t("s.zActive"):t("s.zPick")}</button>
-      <button class="mini red sdel">${t("s.zDel")}</button></div></div>`; }).join("");
-  host.querySelectorAll(".zoneedit").forEach(el=>{ const id=el.dataset.id, s=sections.find(x=>String(x.id)===String(id));
-    el.querySelectorAll("input").forEach(inp=>inp.oninput=e=>{ s[inp.dataset.k]=e.target.value; saveSec(); renderZoneStrip();
-      if(String(id)===String(activeSec)){ syncThreshLabel(); if(lastData)render(lastData); } });
-    el.querySelector(".sact").onclick=()=>{ setActive(id); syncSettings(); };
-    el.querySelector(".sdel").onclick=()=>{ if(sections.length<=1){ showToast(lang==="vi"?"Cần giữ ít nhất 1 khu":"Keep at least one zone","warn"); return; }
-      if(!confirm(lang==="vi"?`Xoá khu "${s.name}"?`:`Delete zone "${s.name}"?`))return;
-      sections=sections.filter(x=>String(x.id)!==String(id));
-      if(String(activeSec)===String(id))activeSec=String(sections[0].id);
-      saveSec(); renderZoneStrip(); renderSecEditor(); renderPhoto(); renderLog(); syncThreshLabel(); if(lastData)render(lastData); }; }); }
-$("addSecBtn").onclick=()=>{ sections.push({id:Date.now(),name:(lang==="vi"?"Khu ":"Zone ")+(sections.length+1),plant:""});
-  saveSec(); renderZoneStrip(); renderSecEditor(); };
+/* (bộ sửa khu cũ đã gộp vào nhóm "Khu vườn & tưới tự động" phía trên) */
+function renderSecEditor(){ renderSetZones(); syncZoneInputs(); }
 
 /* ============ CÀI ĐẶT — TELEGRAM ============ */
 function tgStat(html,kind){ const el=$("tgStat"); el.innerHTML=html; el.className="statmsg show "+(kind||"plain"); }
@@ -1687,6 +1996,7 @@ $("demoToggle").onchange=e=>{ if(e.target.checked){ dTemp=null; dm=null; demoSte
 
 /* ============ KHỞI ĐỘNG ============ */
 $("darkToggle").checked=body.getAttribute("data-theme")==="dark";
+$("secHome").dataset.seen="1";   // trang chính đã chạy hiệu ứng lần đầu khi mở app
 buildCharts(); applyLang(); renderGreeting(); renderZoneStrip(); renderPhoto(); fillLogSelect(); renderLog();
 syncThreshLabel(); applyMap();
 refresh().then(syncSettings); setInterval(refresh,5000);
@@ -1694,7 +2004,11 @@ loadWeather(); setInterval(loadWeather,600000); ensurePlaceName();
 loadAdvice(); setInterval(loadAdvice,900000);
 tgLoadBot();
 setInterval(renderGreeting,60000);
-window.addEventListener("resize",()=>{ if(lastWx&&!$("secWx").hidden)renderCurve(lastWx); });
+window.addEventListener("resize",()=>{ if(lastWx&&!$("secWx").hidden)renderCurve(lastWx);
+  if(!$("secSet").hidden)tsUI(+$("tsSlider").value);
+  moveTabInd(true); });
+window.addEventListener("load",()=>moveTabInd(true));
+setTimeout(()=>moveTabInd(true),350);   // đặt viên xanh vào đúng chỗ sau khi font tải xong
 /* header: trong suốt ở đầu trang, kính mờ khi cuộn */
 const _topBar=document.querySelector(".top");
 window.addEventListener("scroll",()=>{ _topBar.classList.toggle("scrolled",window.scrollY>20); },{passive:true});

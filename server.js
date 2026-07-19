@@ -470,6 +470,10 @@ function checkSchedule() {
 }
 
 // ---- ESP32 gửi dữ liệu (KHÔNG cần đăng nhập) ----
+// ---- Dữ liệu theo KHU: ESP32 gửi kèm &sec=<mã cảm biến> (vd: A1) ----
+const zoneLatest = {};   // { "A1": {temp, moisture, time} }
+const zoneHist = {};     // { "A1": [{time,temp,moisture}, ...] } — giữ 500 điểm gần nhất
+
 app.get("/api/update", (req, res) => {
   const temp = parseFloat(req.query.temp);
   const moisture = parseFloat(req.query.moisture);
@@ -477,6 +481,13 @@ app.get("/api/update", (req, res) => {
     return res.status(400).json({ ok: false, error: "Thiếu hoặc sai temp/moisture" });
   }
   latest = { temp, moisture, time: new Date().toISOString() };
+  // Cảm biến của khu riêng: /api/update?temp=..&moisture=..&sec=A1
+  const sec = String(req.query.sec || "").trim().slice(0, 24);
+  if (sec) {
+    zoneLatest[sec] = { temp, moisture, time: latest.time };
+    (zoneHist[sec] = zoneHist[sec] || []).push({ time: latest.time, temp, moisture });
+    if (zoneHist[sec].length > 500) zoneHist[sec].shift();
+  }
   history.push(latest);
   if (history.length > MAX_HISTORY) history.shift();
   dbInsertReading(temp, moisture, latest.time);
@@ -539,10 +550,14 @@ app.get("/api/data", requireAuth, (req, res) => {
     };
   }
 
+  // dữ liệu khu: chỉ gửi 100 điểm gần nhất mỗi khu cho nhẹ
+  const zh = {};
+  for (const k of Object.keys(zoneHist)) zh[k] = zoneHist[k].slice(-100);
   res.json({
     latest, history, events, valveState, valveSince, config,
     user: req.user.name,
     rainProbNow, rainSkipActive,
+    zoneLatest, zoneHist: zh,
     stats: { wateringToday, lastWateringTime: lastWatering ? lastWatering.time : null, favorablePercent },
     daily
   });
